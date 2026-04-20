@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaludEscolar — Sistema de Gestión de Enfermería</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --teal-900: #0a3d3a;
+  --teal-800: #0d5250;
+  --teal-700: #0f6b65;
+  --teal-600: #13847c;
+  --teal-500: #17a99f;
+  --teal-400: #2cc4ba;
+  --teal-300: #5dd8cf;
+  --teal-200: #9eeae5;
+  --teal-100: #d0f5f3;
+  --teal-50:  #eafaf9;
+  --green-500: #22c55e;
+  --green-100: #dcfce7;
+  --amber-500: #f59e0b;
+  --amber-100: #fef3c7;
+  --red-500: #ef4444;
+  --red-100: #fee2e2;
+  --blue-500: #3b82f6;
+  --blue-100: #dbeafe;
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-400: #94a3b8;
+  --slate-300: #cbd5e1;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50:  #f8fafc;
+  --white: #ffffff;
+  --sidebar-w: 260px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.1), 0 12px 40px rgba(0,0,0,.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--slate-50);
+  color: var(--slate-800);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── LOGIN ─────────────────────────────────────────────────────── */
+#loginScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-700) 50%, var(--teal-500) 100%);
+  position: relative;
+  overflow: hidden;
+}
+#loginScreen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.login-card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 48px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  position: relative;
+  z-index: 1;
+  animation: fadeUp .5s ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  justify-content: center;
+}
+.login-logo-icon {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, var(--teal-600), var(--teal-400));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.login-logo-text h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px;
+  color: var(--teal-800);
+  line-height: 1;
+}
+.login-logo-text span {
+  font-size: 11px;
+  color: var(--slate-500);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.login-card h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--slate-900);
+  margin-bottom: 6px;
+  text-align: center;
+}
+.login-card p { font-size: 14px; color: var(--slate-500); text-align: center; margin-bottom: 28px; }
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--slate-700); margin-bottom: 6px; }
+.form-control {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--slate-800);
+  background: var(--white);
+  transition: border-color .2s, box-shadow .2s;
+  outline: none;
+}
+.form-control:focus {
+  border-color: var(--teal-400);
+  box-shadow: 0 0 0 3px rgba(44,196,186,.12);
+}
+.role-select-group { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 24px; }
+.role-option { display: none; }
+.role-option + label {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 6px;
+  border: 1.5px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 12px; font-weight: 500; color: var(--slate-600);
+  transition: all .2s;
+  text-align: center;
+}
+.role-option + label .role-icon { font-size: 20px; }
+.role-option:checked + label {
+  border-color: var(--teal-400);
+  background: var(--teal-50);
+  color: var(--teal-700);
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 20px;
+  border: none; border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all .2s; text-decoration: none; white-space: nowrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--teal-600), var(--teal-500));
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(17,169,159,.3);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(17,169,159,.4); }
+.btn-secondary { background: var(--slate-100); color: var(--slate-700); }
+.btn-secondary:hover { background: var(--slate-200); }
+.btn-danger { background: var(--red-100); color: var(--red-500); }
+.btn-danger:hover { background: #fecaca; }
+.btn-success { background: var(--green-100); color: #16a34a; }
+.btn-success:hover { background: #bbf7d0; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-full { width: 100%; }
+.login-demo { margin-top: 20px; text-align: center; font-size: 12px; color: var(--slate-400); }
+.login-demo strong { color: var(--teal-600); }
+
+/* ── APP SHELL ──────────────────────────────────────────────────── */
+#appShell { display: none; min-height: 100vh; }
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--teal-900);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  transition: transform .3s ease;
+}
+.sidebar-header {
+  padding: 20px 20px 0;
+  display: flex; align-items: center; gap: 10px;
+}
+.sidebar-logo {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--teal-500), var(--teal-300));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.sidebar-brand h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 16px; color: var(--white); line-height: 1.2;
+}
+.sidebar-brand span { font-size: 10px; color: var(--teal-300); letter-spacing: .4px; }
+.sidebar-user {
+  margin: 16px 16px 8px;
+  padding: 12px;
+  background: rgba(255,255,255,.06);
+  border-radius: 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sidebar-avatar {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--teal-500), var(--teal-300));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.sidebar-user-info .name { font-size: 13px; font-weight: 600; color: var(--white); }
+.sidebar-user-info .role-badge {
+  font-size: 10px; color: var(--teal-300);
+  background: rgba(44,196,186,.15);
+  padding: 2px 7px; border-radius: 20px; display: inline-block; margin-top: 2px;
+}
+.sidebar-nav { padding: 8px 12px; flex: 1; overflow-y: auto; }
+.nav-section { margin-bottom: 20px; }
+.nav-section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  color: var(--teal-400); text-transform: uppercase;
+  padding: 0 8px; margin-bottom: 4px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,.65);
+  cursor: pointer; transition: all .2s; margin-bottom: 2px;
+  user-select: none;
+}
+.nav-item:hover { background: rgba(255,255,255,.08); color: var(--white); }
+.nav-item.active { background: rgba(44,196,186,.18); color: var(--teal-300); }
+.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.alert-badge {
+  margin-left: auto; background: var(--red-500);
+  color: var(--white); font-size: 10px; font-weight: 700;
+  padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center;
+}
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.main {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(248,250,252,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--slate-200);
+  padding: 0 28px;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-title { font-size: 17px; font-weight: 600; color: var(--slate-900); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-notif {
+  width: 36px; height: 36px;
+  border-radius: 50%; background: var(--white);
+  border: 1px solid var(--slate-200);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; position: relative;
+  transition: all .2s;
+}
+.topbar-notif:hover { background: var(--teal-50); }
+.notif-dot {
+  position: absolute; top: 6px; right: 7px;
+  width: 8px; height: 8px;
+  background: var(--red-500); border-radius: 50%;
+  border: 2px solid var(--white);
+}
+.page-content { padding: 28px; flex: 1; }
+
+/* ── VIEWS ──────────────────────────────────────────────────────── */
+.view { display: none; animation: fadeIn .25s ease; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── CARDS & LAYOUT ─────────────────────────────────────────────── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--slate-100);
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--slate-100);
+}
+.card-title { font-size: 15px; font-weight: 600; color: var(--slate-900); }
+.card-subtitle { font-size: 12px; color: var(--slate-400); margin-top: 2px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+
+/* ── STAT CARDS ─────────────────────────────────────────────────── */
+.stat-card {
+  background: var(--white); border-radius: var(--radius);
+  padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--slate-100);
+  display: flex; align-items: flex-start; gap: 14px;
+  transition: transform .2s, box-shadow .2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+}
+.stat-icon.teal  { background: var(--teal-100);  }
+.stat-icon.green { background: var(--green-100); }
+.stat-icon.amber { background: var(--amber-100); }
+.stat-icon.red   { background: var(--red-100);   }
+.stat-icon.blue  { background: var(--blue-100);  }
+.stat-info { flex: 1; }
+.stat-value { font-size: 26px; font-weight: 700; color: var(--slate-900); line-height: 1; }
+.stat-label { font-size: 12px; color: var(--slate-500); margin-top: 3px; }
+.stat-change { font-size: 11px; margin-top: 6px; font-weight: 500; }
+.stat-change.up { color: #16a34a; }
+.stat-change.down { color: var(--red-500); }
+
+/* ── TABLE ──────────────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead tr { border-bottom: 2px solid var(--slate-100); }
+thead th {
+  text-align: left; padding: 10px 12px;
+  font-size: 11px; font-weight: 600; color: var(--slate-500);
+  text-transform: uppercase; letter-spacing: .5px; white-space: nowrap;
+}
+tbody tr {
+  border-bottom: 1px solid var(--slate-50);
+  transition: background .15s;
+}
+tbody tr:hover { background: var(--teal-50); }
+tbody td { padding: 11px 12px; color: var(--slate-700); }
+.td-name { font-weight: 600; color: var(--slate-900); }
+
+/* ── BADGES ─────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.badge-teal  { background: var(--teal-100);  color: var(--teal-700); }
+.badge-green { background: var(--green-100); color: #16a34a; }
+.badge-amber { background: var(--amber-100); color: #92400e; }
+.badge-red   { background: var(--red-100);   color: #991b1b; }
+.badge-blue  { background: var(--blue-100);  color: #1d4ed8; }
+.badge-gray  { background: var(--slate-100); color: var(--slate-600); }
+
+/* ── PAGE HEADERS ───────────────────────────────────────────────── */
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+}
+.page-header-left h2 {
+  font-size: 22px; font-weight: 700; color: var(--slate-900);
+}
+.page-header-left p { font-size: 13px; color: var(--slate-500); margin-top: 3px; }
+
+/* ── FORMS ──────────────────────────────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid.cols-3 { grid-template-columns: repeat(3,1fr); }
+.form-full { grid-column: 1 / -1; }
+.form-group-inline { display: flex; gap: 8px; }
+select.form-control, textarea.form-control { resize: vertical; }
+textarea.form-control { min-height: 80px; }
+.form-label-required::after { content: ' *'; color: var(--red-500); }
+
+/* ── MODAL ──────────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(15,23,42,.5); backdrop-filter: blur(4px);
+  z-index: 200; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 16px;
+  width: 100%; max-width: 640px;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  animation: modalIn .25s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(.96) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--slate-100);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--white); z-index: 1;
+  border-radius: 16px 16px 0 0;
+}
+.modal-title { font-size: 16px; font-weight: 700; color: var(--slate-900); }
+.modal-body { padding: 24px; }
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--slate-100);
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+.btn-close {
+  background: none; border: none; cursor: pointer;
+  font-size: 20px; color: var(--slate-400); line-height: 1;
+  padding: 4px; border-radius: 6px;
+  transition: color .2s;
+}
+.btn-close:hover { color: var(--slate-700); }
+
+/* ── ALERTS PANEL ───────────────────────────────────────────────── */
+.alert-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px; border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  border: 1px solid var(--amber-100);
+  background: var(--amber-100);
+  animation: fadeIn .3s ease;
+}
+.alert-item-icon { font-size: 18px; flex-shrink: 0; }
+.alert-item-text .alert-title { font-size: 13px; font-weight: 600; color: var(--slate-900); }
+.alert-item-text .alert-desc { font-size: 12px; color: var(--slate-600); margin-top: 2px; }
+.alert-item.critical { background: var(--red-100); border-color: #fca5a5; }
+
+/* ── SEARCH BAR ─────────────────────────────────────────────────── */
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--white); border: 1.5px solid var(--slate-200);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  transition: border-color .2s, box-shadow .2s; flex: 1; max-width: 360px;
+}
+.search-bar:focus-within {
+  border-color: var(--teal-400);
+  box-shadow: 0 0 0 3px rgba(44,196,186,.1);
+}
+.search-bar input {
+  border: none; outline: none; background: none;
+  font-family: 'DM Sans',sans-serif; font-size: 13px; color: var(--slate-700); flex: 1;
+}
+.search-icon { font-size: 14px; color: var(--slate-400); }
+
+/* ── TIMELINE ───────────────────────────────────────────────────── */
+.timeline { position: relative; }
+.timeline::before {
+  content: '';
+  position: absolute; left: 18px; top: 0; bottom: 0;
+  width: 2px; background: var(--slate-100);
+}
+.timeline-item {
+  display: flex; gap: 16px; margin-bottom: 20px; position: relative;
+}
+.timeline-dot {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: var(--teal-100); border: 2px solid var(--teal-300);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; z-index: 1;
+}
+.timeline-content {
+  background: var(--white); border: 1px solid var(--slate-100);
+  border-radius: var(--radius-sm); padding: 14px; flex: 1;
+  box-shadow: var(--shadow);
+}
+.timeline-meta { font-size: 11px; color: var(--slate-400); margin-bottom: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
+.timeline-title { font-size: 13px; font-weight: 600; color: var(--slate-900); margin-bottom: 4px; }
+.timeline-body { font-size: 12px; color: var(--slate-600); line-height: 1.6; }
+
+/* ── REPORT CARD ────────────────────────────────────────────────── */
+.report-preview {
+  border: 1px solid var(--slate-200); border-radius: var(--radius);
+  overflow: hidden; background: var(--white);
+}
+.report-header {
+  background: linear-gradient(135deg, var(--teal-800), var(--teal-600));
+  color: var(--white); padding: 24px 28px;
+  display: flex; align-items: center; gap: 16px;
+}
+.report-logo {
+  width: 48px; height: 48px;
+  background: rgba(255,255,255,.15); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.report-header h3 { font-size: 18px; font-weight: 700; }
+.report-header p { font-size: 12px; opacity: .8; margin-top: 2px; }
+.report-body { padding: 24px; }
+.report-section { margin-bottom: 20px; }
+.report-section h4 {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--teal-700); margin-bottom: 8px;
+  padding-bottom: 6px; border-bottom: 2px solid var(--teal-100);
+}
+.report-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; padding: 5px 0;
+  border-bottom: 1px solid var(--slate-50);
+}
+.report-row strong { color: var(--slate-900); font-weight: 600; }
+.report-row span { color: var(--slate-600); }
+
+/* ── TABS ───────────────────────────────────────────────────────── */
+.tabs { display: flex; gap: 4px; background: var(--slate-100); padding: 4px; border-radius: 10px; width: fit-content; margin-bottom: 20px; }
+.tab-btn {
+  padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 500;
+  color: var(--slate-500); cursor: pointer; border: none; background: none;
+  font-family: 'DM Sans',sans-serif; transition: all .2s;
+}
+.tab-btn.active {
+  background: var(--white); color: var(--teal-700); font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── PROGRESS BAR ───────────────────────────────────────────────── */
+.progress { background: var(--slate-100); border-radius: 99px; height: 6px; overflow: hidden; }
+.progress-bar {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--teal-500), var(--teal-300));
+  transition: width .6s ease;
+}
+
+/* ── EMPTY STATE ────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state h3 { font-size: 16px; font-weight: 600; color: var(--slate-700); margin-bottom: 6px; }
+.empty-state p { font-size: 13px; color: var(--slate-400); }
+
+/* ── TOAST ──────────────────────────────────────────────────────── */
+#toastContainer {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  background: var(--slate-900); color: var(--white);
+  padding: 12px 18px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  display: flex; align-items: center; gap: 10px;
+  animation: toastIn .3s ease; min-width: 260px;
+}
+@keyframes toastIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+.toast.success { background: var(--teal-700); }
+.toast.error   { background: var(--red-500); }
+.toast.warning { background: #92400e; }
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────── */
+.hamburger {
+  display: none; background: none; border: none;
+  font-size: 22px; cursor: pointer; color: var(--slate-700); padding: 4px;
+}
+@media (max-width: 900px) {
+  .grid-4 { grid-template-columns: repeat(2,1fr); }
+  .grid-3 { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 768px) {
+  :root { --sidebar-w: 260px; }
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-md);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .hamburger { display: block; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid.cols-3 { grid-template-columns: 1fr; }
+  .page-content { padding: 16px; }
+  .topbar { padding: 0 16px; }
+}
+@media (max-width: 480px) {
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+  .login-card { padding: 28px 20px; }
+}
+
+/* Print styles */
+@media print {
+  .sidebar, .topbar, .no-print { display: none !important; }
+  .main { margin-left: 0 !important; }
+  .report-preview { box-shadow: none; border: 1px solid #ccc; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────────────────────────── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">🏥</div>
+      <div class="login-logo-text">
+        <h1>SaludEscolar</h1>
+        <span>Gestión de Enfermería</span>
+      </div>
+    </div>
+    <h2>Bienvenido/a</h2>
+    <p>Ingresa tus credenciales para acceder al sistema</p>
+
+    <div class="form-group">
+      <label>Usuario</label>
+      <input class="form-control" type="text" id="loginUser" placeholder="nombre.usuario" value="enfermera">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input class="form-control" type="password" id="loginPass" placeholder="••••••••" value="12345">
+    </div>
+
+    <div style="margin-bottom:8px">
+      <label style="font-size:13px;font-weight:500;color:var(--slate-700);display:block;margin-bottom:8px">Ingresar como:</label>
+      <div class="role-select-group">
+        <input type="radio" name="role" id="roleNurse" class="role-option" value="nurse" checked>
+        <label for="roleNurse"><span class="role-icon">👩‍⚕️</span>Enfermera/o</label>
+        <input type="radio" name="role" id="roleAdmin" class="role-option" value="admin">
+        <label for="roleAdmin"><span class="role-icon">🏫</span>Administrador</label>
+        <input type="radio" name="role" id="roleParent" class="role-option" value="parent">
+        <label for="roleParent"><span class="role-icon">👨‍👩‍👧</span>Padre/Madre</label>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Iniciar Sesión</button>
+
+    <div class="login-demo">
+      Demo: usuario <strong>enfermera</strong> / contraseña <strong>12345</strong><br>
+      Administrador: <strong>admin</strong> / <strong>admin123</strong> &nbsp;|&nbsp; Padre: <strong>padre</strong> / <strong>padre123</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP SHELL ──────────────────────────────────────────────────── -->
+<div id="appShell">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏥</div>
+      <div class="sidebar-brand">
+        <h2>SaludEscolar</h2>
+        <span>Enfermería Digital</span>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">👩‍⚕️</div>
+      <div class="sidebar-user-info">
+        <div class="name" id="sidebarName">Enfermera</div>
+        <span class="role-badge" id="sidebarRole">Enfermera/o</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <!-- Rendered by JS -->
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary btn-full" onclick="doLogout()">🚪 Cerrar Sesión</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-notif" onclick="showView('alertas')" title="Alertas">
+          🔔<div class="notif-dot" id="notifDot"></div>
+        </div>
+        <div style="font-size:12px;color:var(--slate-500)" id="topbarDate"></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- DASHBOARD -->
+      <div class="view" id="view-dashboard">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Dashboard General</h2>
+            <p>Resumen de actividad de la enfermería escolar</p>
+          </div>
+          <button class="btn btn-primary" onclick="showView('nueva-atencion')">➕ Nueva Atención</button>
+        </div>
+
+        <div class="grid-4" style="margin-bottom:20px" id="statsGrid"></div>
+
+        <div class="grid-2" style="margin-bottom:20px">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Atenciones por mes</div><div class="card-subtitle">Últimos 6 meses</div></div>
+            </div>
+            <canvas id="chartMensual" height="200"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Motivos más frecuentes</div><div class="card-subtitle">Este mes</div></div>
+            </div>
+            <canvas id="chartMotivos" height="200"></canvas>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Distribución por curso</div></div>
+            </div>
+            <canvas id="chartCursos" height="200"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">⚠️ Alertas recientes</div><div class="card-subtitle">Estudiantes con visitas repetitivas</div></div>
+              <span class="badge badge-red" id="alertCountBadge">0</span>
+            </div>
+            <div id="dashAlerts"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NUEVA ATENCIÓN -->
+      <div class="view" id="view-nueva-atencion">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Registrar Nueva Atención</h2>
+            <p>Complete todos los campos para guardar la atención médica</p>
+          </div>
+        </div>
+
+        <div class="card" style="max-width:820px">
+          <div class="card-header">
+            <div class="card-title">📋 Formulario de Atención</div>
+            <span class="badge badge-teal">Campos con * son obligatorios</span>
+          </div>
+          <form id="formAtencion" onsubmit="guardarAtencion(event)">
+            <div class="form-grid">
+              <div class="form-group" style="position:relative">
+                <label class="form-label-required">Nombre del Estudiante</label>
+                <input class="form-control" type="text" id="fEstudianteNombre" placeholder="Escribe el nombre..." autocomplete="off" oninput="buscarEnFormulario()" required>
+                <input type="hidden" id="fEstudiante">
+                <div id="fEstudianteSugerencias" style="
+                  display:none; position:absolute; top:100%; left:0; right:0; z-index:50;
+                  background:var(--white); border:1.5px solid var(--teal-300);
+                  border-radius:var(--radius-sm); box-shadow:var(--shadow-md);
+                  max-height:200px; overflow-y:auto; margin-top:2px;
+                "></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label-required">Curso / Grado</label>
+                <input class="form-control" type="text" id="fCurso" readonly placeholder="Se carga automáticamente">
+              </div>
+              <div class="form-group">
+                <label class="form-label-required">Fecha</label>
+                <input class="form-control" type="date" id="fFecha" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label-required">Hora</label>
+                <input class="form-control" type="time" id="fHora" required>
+              </div>
+              <div class="form-group form-full">
+                <label class="form-label-required">Motivo de Consulta</label>
+                <select class="form-control" id="fMotivo" required onchange="checkOtroMotivo()">
+                  <option value="">-- Seleccionar motivo --</option>
+                  <option>Dolor de cabeza / cefalea</option>
+                  <option>Dolor abdominal</option>
+                  <option>Fiebre</option>
+                  <option>Herida / cortadura</option>
+                  <option>Golpe / traumatismo</option>
+                  <option>Náuseas / vómitos</option>
+                  <option>Problema respiratorio</option>
+                  <option>Alergia</option>
+                  <option>Control rutinario</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+              <div class="form-group form-full" id="otroMotivoGroup" style="display:none">
+                <label>Especificar motivo</label>
+                <input class="form-control" type="text" id="fOtroMotivo" placeholder="Describa el motivo...">
+              </div>
+              <div class="form-group form-full">
+                <label class="form-label-required">Diagnóstico</label>
+                <textarea class="form-control" id="fDiagnostico" rows="2" required placeholder="Descripción del diagnóstico clínico..."></textarea>
+              </div>
+              <div class="form-group form-full">
+                <label class="form-label-required">Tratamiento aplicado</label>
+                <textarea class="form-control" id="fTratamiento" rows="2" required placeholder="Medicamentos, curaciones, reposo, derivación..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>Temperatura (°C)</label>
+                <input class="form-control" type="number" id="fTemp" step="0.1" min="35" max="42" placeholder="36.5">
+              </div>
+              <div class="form-group">
+                <label>¿Derivado a hospital?</label>
+                <select class="form-control" id="fDerivado">
+                  <option value="no">No</option>
+                  <option value="si">Sí — Centro de salud</option>
+                  <option value="emergencia">Sí — Emergencia</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>¿Se notificó al apoderado?</label>
+                <select class="form-control" id="fNotifApo">
+                  <option value="no">No fue necesario</option>
+                  <option value="si">Sí, fue notificado</option>
+                  <option value="pendiente">Pendiente</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Estado</label>
+                <select class="form-control" id="fEstado">
+                  <option value="alta">Alta — Volvió a clase</option>
+                  <option value="reposo">En reposo en enfermería</option>
+                  <option value="derivado">Derivado</option>
+                  <option value="recogido">Recogido por apoderado</option>
+                </select>
+              </div>
+              <div class="form-group form-full">
+                <label>Observaciones adicionales</label>
+                <textarea class="form-control" id="fObservaciones" rows="2" placeholder="Información adicional relevante..."></textarea>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;padding-top:16px;border-top:1px solid var(--slate-100)">
+              <button type="button" class="btn btn-secondary" onclick="resetForm()">🔄 Limpiar</button>
+              <button type="submit" class="btn btn-primary">💾 Guardar Atención</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- HISTORIAL -->
+      <div class="view" id="view-historial">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Historial de Atenciones</h2>
+            <p>Consulta y gestiona todos los registros médicos</p>
+          </div>
+          <button class="btn btn-primary" onclick="showView('nueva-atencion')">➕ Nueva Atención</button>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="searchHistorial" placeholder="Buscar por nombre, motivo, curso..." oninput="filtrarHistorial()">
+            </div>
+            <select class="form-control" style="width:auto;min-width:150px" id="filterCurso" onchange="filtrarHistorial()">
+              <option value="">Todos los cursos</option>
+            </select>
+            <select class="form-control" style="width:auto;min-width:160px" id="filterMotivo" onchange="filtrarHistorial()">
+              <option value="">Todos los motivos</option>
+            </select>
+            <input class="form-control" type="date" id="filterFecha" style="width:auto" onchange="filtrarHistorial()">
+            <button class="btn btn-secondary btn-sm" onclick="limpiarFiltros()">✖ Limpiar filtros</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Registros de atenciones</div>
+            <span class="badge badge-teal" id="historialCount">0 registros</span>
+          </div>
+          <div class="table-wrap">
+            <table id="tablaHistorial">
+              <thead>
+                <tr>
+                  <th>Estudiante</th><th>Curso</th><th>Fecha</th><th>Hora</th>
+                  <th>Motivo</th><th>Estado</th><th>Derivado</th><th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="historialBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTUDIANTES -->
+      <div class="view" id="view-estudiantes">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Ficha del Estudiante</h2>
+            <p>Historial clínico individual</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-header">
+                <div class="card-title">🔍 Buscar Estudiante</div>
+              </div>
+              <div class="search-bar" style="max-width:100%;margin-bottom:12px">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchEstudiante" placeholder="Buscar por nombre..." oninput="buscarEstudiante()">
+              </div>
+              <div id="listaEstudiantes"></div>
+            </div>
+          </div>
+          <div>
+            <div id="fichaEstudiante">
+              <div class="empty-state">
+                <div class="empty-icon">👤</div>
+                <h3>Selecciona un estudiante</h3>
+                <p>Busca y selecciona un estudiante para ver su ficha clínica completa</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALERTAS -->
+      <div class="view" id="view-alertas">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Centro de Alertas</h2>
+            <p>Estudiantes con visitas repetitivas y situaciones de atención especial</p>
+          </div>
+        </div>
+        <div id="alertasPanel"></div>
+      </div>
+
+      <!-- REPORTES -->
+      <div class="view" id="view-reportes">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Reportes</h2>
+            <p>Genera y exporta reportes individuales y generales</p>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('reportes','individual',this)">📄 Reporte Individual</button>
+          <button class="tab-btn" onclick="switchTab('reportes','general',this)">📊 Reporte General</button>
+        </div>
+
+        <div class="tab-panel active" id="tab-reportes-individual">
+          <div class="card" style="margin-bottom:16px;max-width:820px">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+              <div class="form-group" style="margin:0;flex:1;min-width:200px">
+                <label style="font-size:13px;font-weight:500;color:var(--slate-700);display:block;margin-bottom:6px">Estudiante</label>
+                <select class="form-control" id="reporteEstSelect">
+                  <option value="">-- Seleccionar --</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label style="font-size:13px;font-weight:500;color:var(--slate-700);display:block;margin-bottom:6px">Período</label>
+                <select class="form-control" id="reportePeriodo">
+                  <option value="30">Últimos 30 días</option>
+                  <option value="90" selected>Últimos 3 meses</option>
+                  <option value="180">Últimos 6 meses</option>
+                  <option value="365">Este año</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="generarReporteIndividual()">📄 Generar Reporte</button>
+            </div>
+          </div>
+          <div id="reporteIndividualContent"></div>
+        </div>
+
+        <div class="tab-panel" id="tab-reportes-general">
+          <div class="card" style="margin-bottom:16px;max-width:820px">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+              <div class="form-group" style="margin:0">
+                <label style="font-size:13px;font-weight:500;color:var(--slate-700);display:block;margin-bottom:6px">Período</label>
+                <select class="form-control" id="reporteGeneralPeriodo">
+                  <option value="mes">Este mes</option>
+                  <option value="trimestre" selected>Este trimestre</option>
+                  <option value="anio">Este año</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label style="font-size:13px;font-weight:500;color:var(--slate-700);display:block;margin-bottom:6px">Destinatario</label>
+                <select class="form-control" id="reporteDestinatario">
+                  <option value="direccion">Dirección del Centro</option>
+                  <option value="mineduc">MINEDUC / Autoridades</option>
+                  <option value="general">General</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="generarReporteGeneral()">📊 Generar Reporte</button>
+            </div>
+          </div>
+          <div id="reporteGeneralContent"></div>
+        </div>
+      </div>
+
+      <!-- CONFIGURACIÓN (solo admin) -->
+      <div class="view" id="view-configuracion">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Configuración del Sistema</h2>
+            <p>Gestión de usuarios, datos y parámetros</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">👥 Usuarios del sistema</div></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">Lic. María Pérez</td><td><span class="badge badge-teal">Enfermera</span></td><td><span class="badge badge-green">Activo</span></td><td><button class="btn btn-secondary btn-sm">✏️</button></td></tr>
+                  <tr><td class="td-name">Prof. Juan Rodríguez</td><td><span class="badge badge-blue">Admin</span></td><td><span class="badge badge-green">Activo</span></td><td><button class="btn btn-secondary btn-sm">✏️</button></td></tr>
+                  <tr><td class="td-name">Sra. Carmen López</td><td><span class="badge badge-amber">Padre/Madre</span></td><td><span class="badge badge-green">Activo</span></td><td><button class="btn btn-secondary btn-sm">✏️</button></td></tr>
+                  <tr><td class="td-name">Sr. Roberto Díaz</td><td><span class="badge badge-amber">Padre/Madre</span></td><td><span class="badge badge-gray">Inactivo</span></td><td><button class="btn btn-secondary btn-sm">✏️</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="margin-top:14px"><button class="btn btn-primary btn-sm">➕ Agregar Usuario</button></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">⚙️ Parámetros de alertas</div></div>
+            <div class="form-group">
+              <label style="font-size:13px;font-weight:500;color:var(--slate-700);display:block;margin-bottom:6px">Días para detectar visitas repetitivas</label>
+              <input class="form-control" type="number" value="7" min="1" max="30">
+            </div>
+            <div class="form-group">
+              <label style="font-size:13px;font-weight:500;color:var(--slate-700);display:block;margin-bottom:6px">Umbral de visitas para alerta (en días definidos)</label>
+              <input class="form-control" type="number" value="3" min="2" max="10">
+            </div>
+            <div class="form-group">
+              <label style="font-size:13px;font-weight:500;color:var(--slate-700);display:block;margin-bottom:6px">Nombre del colegio</label>
+              <input class="form-control" type="text" value="Colegio San Martín de Porres">
+            </div>
+            <div class="form-group">
+              <label style="font-size:13px;font-weight:500;color:var(--slate-700);display:block;margin-bottom:6px">Nombre de la enfermería</label>
+              <input class="form-control" type="text" value="Enfermería Escolar">
+            </div>
+            <button class="btn btn-primary btn-sm">💾 Guardar cambios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL DETALLE ──────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modalDetalle">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📋 Detalle de Atención</div>
+      <button class="btn-close" onclick="closeModal('modalDetalle')">✕</button>
+    </div>
+    <div class="modal-body" id="modalDetalleBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalDetalle')">Cerrar</button>
+      <button class="btn btn-danger" id="modalDeleteBtn">🗑️ Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ──────────────────────────────────────────────────────── -->
+<div id="toastContainer"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//   DATA & STATE
+// ═══════════════════════════════════════════════════════════════
+const USERS = {
+  enfermera: { pass:'12345',     role:'nurse',  name:'Lic. María Pérez',      avatar:'👩‍⚕️' },
+  admin:     { pass:'admin123',  role:'admin',  name:'Prof. Juan Rodríguez',  avatar:'🏫' },
+  padre:     { pass:'padre123',  role:'parent', name:'Carmen López',          avatar:'👨‍👩‍👧' },
+};
+
+const STUDENTS = [
+  {id:1, name:'Alejandro Martínez', curso:'3° A',  grado:'3° Primaria',   apoderado:'Rosa Martínez',   tel:'555-0101', alergias:'Penicilina'},
+  {id:2, name:'Sofía González',     curso:'5° B',  grado:'5° Primaria',   apoderado:'Luis González',   tel:'555-0102', alergias:'Ninguna'},
+  {id:3, name:'Mateo Rodríguez',    curso:'1° A',  grado:'1° Secundaria', apoderado:'Carmen Rodríguez',tel:'555-0103', alergias:'Polen'},
+  {id:4, name:'Valentina López',    curso:'4° C',  grado:'4° Primaria',   apoderado:'Pedro López',     tel:'555-0104', alergias:'Ninguna'},
+  {id:5, name:'Sebastián Torres',   curso:'2° B',  grado:'2° Secundaria', apoderado:'Ana Torres',      tel:'555-0105', alergias:'Mariscos'},
+  {id:6, name:'Isabella Ramírez',   curso:'6° A',  grado:'6° Primaria',   apoderado:'Jorge Ramírez',   tel:'555-0106', alergias:'Ninguna'},
+  {id:7, name:'Lucas Herrera',      curso:'3° B',  grado:'3° Primaria',   apoderado:'Marta Herrera',   tel:'555-0107', alergias:'Látex'},
+  {id:8, name:'Emma Díaz',          curso:'5° A',  grado:'5° Primaria',   apoderado:'Carlos Díaz',     tel:'555-0108', alergias:'Ninguna'},
+  {id:9, name:'Nicolás Castro',     curso:'1° B',  grado:'1° Secundaria', apoderado:'Laura Castro',    tel:'555-0109', alergias:'Ibuprofeno'},
+  {id:10,name:'Camila Vargas',      curso:'2° A',  grado:'2° Primaria',   apoderado:'Andrés Vargas',   tel:'555-0110', alergias:'Ninguna'},
+];
+
+// Generate sample atenciones
+function daysAgo(n) {
+  const d = new Date(); d.setDate(d.getDate()-n);
+  return d.toISOString().split('T')[0];
+}
+const SAMPLE_ATENCIONES = [
+  {id:1, estudianteId:1, motivo:'Dolor de cabeza / cefalea', diagnostico:'Cefalea tensional leve', tratamiento:'Paracetamol 500mg, reposo 30 min', fecha:daysAgo(1), hora:'09:15', derivado:'no', notifApo:'no', estado:'alta', temperatura:'36.8', observaciones:'Segundo episodio en la semana'},
+  {id:2, estudianteId:3, motivo:'Fiebre', diagnostico:'Síndrome febril agudo 38.5°C', tratamiento:'Ibuprofeno 200mg, hidratación, llamado a apoderado', fecha:daysAgo(1), hora:'10:40', derivado:'no', notifApo:'si', estado:'recogido', temperatura:'38.5', observaciones:''},
+  {id:3, estudianteId:1, motivo:'Dolor de cabeza / cefalea', diagnostico:'Cefalea recurrente', tratamiento:'Paracetamol, reposo', fecha:daysAgo(3), hora:'11:20', derivado:'no', notifApo:'si', estado:'alta', temperatura:'36.5', observaciones:'Tercer episodio. Notificado apoderado'},
+  {id:4, estudianteId:2, motivo:'Herida / cortadura', diagnostico:'Herida cortante superficial en rodilla derecha', tratamiento:'Limpieza, antiséptico, apósito', fecha:daysAgo(2), hora:'14:05', derivado:'no', notifApo:'no', estado:'alta', temperatura:'', observaciones:'Ocurrió en el recreo'},
+  {id:5, estudianteId:5, motivo:'Dolor abdominal', diagnostico:'Dolor abdominal de probable origen funcional', tratamiento:'Reposo, agua tibia, observación 1h', fecha:daysAgo(4), hora:'08:30', derivado:'no', notifApo:'no', estado:'alta', temperatura:'36.7', observaciones:''},
+  {id:6, estudianteId:7, motivo:'Alergia', diagnostico:'Reacción alérgica leve - urticaria', tratamiento:'Antihistamínico oral, observación', fecha:daysAgo(2), hora:'13:15', derivado:'no', notifApo:'si', estado:'alta', temperatura:'', observaciones:'Alérgico a látex, contacto con guantes'},
+  {id:7, estudianteId:3, motivo:'Problema respiratorio', diagnostico:'Crisis asmática leve', tratamiento:'Broncodilatador inhalado, observación 1h', fecha:daysAgo(5), hora:'09:50', derivado:'si', notifApo:'si', estado:'derivado', temperatura:'36.9', observaciones:'Derivado a médico familiar'},
+  {id:8, estudianteId:9, motivo:'Golpe / traumatismo', diagnostico:'Contusión leve rodilla izquierda', tratamiento:'Hielo, vendaje compresivo', fecha:daysAgo(3), hora:'15:20', derivado:'no', notifApo:'no', estado:'alta', temperatura:'', observaciones:'Caída en educación física'},
+  {id:9, estudianteId:1, motivo:'Náuseas / vómitos', diagnostico:'Náuseas posiblemente de origen nervioso', tratamiento:'Reposo, hidratación', fecha:daysAgo(5), hora:'10:10', derivado:'no', notifApo:'si', estado:'recogido', temperatura:'36.6', observaciones:'Próximo a examen'},
+  {id:10,estudianteId:4, motivo:'Dolor de cabeza / cefalea', diagnostico:'Cefalea leve', tratamiento:'Reposo 20 min', fecha:daysAgo(6), hora:'11:00', derivado:'no', notifApo:'no', estado:'alta', temperatura:'36.4', observaciones:''},
+  {id:11,estudianteId:6, motivo:'Control rutinario', diagnostico:'Sin novedad', tratamiento:'Ninguno', fecha:daysAgo(7), hora:'08:00', derivado:'no', notifApo:'no', estado:'alta', temperatura:'36.5', observaciones:'Control mensual'},
+  {id:12,estudianteId:2, motivo:'Fiebre', diagnostico:'Fiebre leve 37.8°C — probable viral', tratamiento:'Paracetamol, hidratación', fecha:daysAgo(10), hora:'12:30', derivado:'no', notifApo:'si', estado:'recogido', temperatura:'37.8', observaciones:''},
+  {id:13,estudianteId:5, motivo:'Dolor abdominal', diagnostico:'Gastroenteritis leve', tratamiento:'Dieta blanda, hidratación', fecha:daysAgo(8), hora:'09:45', derivado:'no', notifApo:'si', estado:'recogido', temperatura:'37.1', observaciones:''},
+  {id:14,estudianteId:8, motivo:'Herida / cortadura', diagnostico:'Abrasión menor en codo', tratamiento:'Limpieza, apósito', fecha:daysAgo(9), hora:'16:00', derivado:'no', notifApo:'no', estado:'alta', temperatura:'', observaciones:''},
+  {id:15,estudianteId:3, motivo:'Dolor de cabeza / cefalea', diagnostico:'Cefalea leve', tratamiento:'Reposo', fecha:daysAgo(10), hora:'10:00', derivado:'no', notifApo:'no', estado:'alta', temperatura:'36.5', observaciones:''},
+  {id:16,estudianteId:10,motivo:'Fiebre', diagnostico:'Cuadro febril 38°C', tratamiento:'Ibuprofeno, notificado apoderado', fecha:daysAgo(11), hora:'11:30', derivado:'no', notifApo:'si', estado:'recogido', temperatura:'38.0', observaciones:''},
+  {id:17,estudianteId:1, motivo:'Dolor de cabeza / cefalea', diagnostico:'Cefalea recurrente — 4to episodio', tratamiento:'Paracetamol, referido a médico', fecha:daysAgo(6), hora:'14:20', derivado:'si', notifApo:'si', estado:'derivado', temperatura:'36.7', observaciones:'Se solicita evaluación neurológica'},
+  {id:18,estudianteId:7, motivo:'Alergia', diagnostico:'Urticaria moderada', tratamiento:'Antihistamínico oral', fecha:daysAgo(12), hora:'09:00', derivado:'no', notifApo:'si', estado:'alta', temperatura:'', observaciones:''},
+];
+
+let atenciones = [...SAMPLE_ATENCIONES];
+let nextId = 19;
+let currentUser = null;
+let currentView = 'dashboard';
+
+// ═══════════════════════════════════════════════════════════════
+//   AUTH
+// ═══════════════════════════════════════════════════════════════
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const roleEl = document.querySelector('input[name="role"]:checked');
+  const r = roleEl ? roleEl.value : 'nurse';
+
+  const usr = USERS[u];
+  if (!usr || usr.pass !== p) { showToast('Credenciales incorrectas','error'); return; }
+  if (usr.role !== r) { showToast(`Rol incorrecto para el usuario "${u}". Rol esperado: ${roleLabel(usr.role)}`, 'warning'); return; }
+
+  currentUser = { ...usr, username: u };
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+  initApp();
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function roleLabel(r) {
+  return { nurse:'Enfermera/o', admin:'Administrador', parent:'Padre/Madre' }[r];
+}
+
+// ═══════════════════════════════════════════════════════════════
+//   NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+const NAV_ITEMS = {
+  nurse: [
+    { section:'Principal', items:[
+      { id:'dashboard',       label:'Dashboard',           icon:'📊' },
+      { id:'nueva-atencion',  label:'Nueva Atención',      icon:'➕' },
+      { id:'historial',       label:'Historial de Atenciones', icon:'📋' },
+    ]},
+    { section:'Estudiantes', items:[
+      { id:'estudiantes',     label:'Fichas Estudiantes',  icon:'👤' },
+      { id:'alertas',         label:'Alertas',             icon:'⚠️', alertKey:true },
+    ]},
+    { section:'Informes', items:[
+      { id:'reportes',        label:'Reportes',            icon:'📄' },
+    ]},
+  ],
+  admin: [
+    { section:'Principal', items:[
+      { id:'dashboard',       label:'Dashboard',           icon:'📊' },
+      { id:'historial',       label:'Historial de Atenciones', icon:'📋' },
+    ]},
+    { section:'Gestión', items:[
+      { id:'estudiantes',     label:'Fichas Estudiantes',  icon:'👤' },
+      { id:'alertas',         label:'Alertas',             icon:'⚠️', alertKey:true },
+    ]},
+    { section:'Informes', items:[
+      { id:'reportes',        label:'Reportes',            icon:'📄' },
+    ]},
+    { section:'Sistema', items:[
+      { id:'configuracion',   label:'Configuración',       icon:'⚙️' },
+    ]},
+  ],
+  parent: [
+    { section:'Mi hijo/a', items:[
+      { id:'estudiantes',     label:'Historial Médico',    icon:'👤' },
+    ]},
+    { section:'Comunicación', items:[
+      { id:'reportes',        label:'Reportes',            icon:'📄' },
+    ]},
+  ],
+};
+
+function buildNav() {
+  const nav = document.getElementById('sidebarNav');
+  const items = NAV_ITEMS[currentUser.role] || NAV_ITEMS.nurse;
+  const alertCount = getAlerts().length;
+  nav.innerHTML = items.map(section => `
+    <div class="nav-section">
+      <div class="nav-section-label">${section.section}</div>
+      ${section.items.map(item => `
+        <div class="nav-item" onclick="showView('${item.id}')" data-view="${item.id}">
+          <span class="nav-icon">${item.icon}</span>
+          ${item.label}
+          ${item.alertKey && alertCount > 0 ? `<span class="alert-badge">${alertCount}</span>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById('view-'+id);
+  if (el) el.classList.add('active');
+  const navItem = document.querySelector(`.nav-item[data-view="${id}"]`);
+  if (navItem) navItem.classList.add('active');
+  currentView = id;
+  const titles = {
+    dashboard:'Dashboard General', 'nueva-atencion':'Nueva Atención',
+    historial:'Historial de Atenciones', estudiantes:'Fichas de Estudiantes',
+    alertas:'Centro de Alertas', reportes:'Reportes', configuracion:'Configuración',
+  };
+  document.getElementById('topbarTitle').textContent = titles[id] || id;
+  closeSidebar();
+  if (id === 'historial') renderHistorial();
+  if (id === 'reportes') populateReporteSelect();
+  if (id === 'alertas') renderAlertas();
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'estudiantes') renderEstudiantesList();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//   INIT
+// ═══════════════════════════════════════════════════════════════
+function initApp() {
+  document.getElementById('sidebarName').textContent = currentUser.name;
+  document.getElementById('sidebarRole').textContent = roleLabel(currentUser.role);
+  document.getElementById('sidebarAvatar').textContent = currentUser.avatar;
+  const now = new Date();
+  document.getElementById('topbarDate').textContent = now.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'});
+  buildNav();
+  populateFormSelects();
+  const alertCount = getAlerts().length;
+  document.getElementById('notifDot').style.display = alertCount > 0 ? 'block' : 'none';
+  showView('dashboard');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//   DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+let charts = {};
+function renderDashboard() {
+  // Stats
+  const total = atenciones.length;
+  const thisMonth = atenciones.filter(a => {
+    const d = new Date(a.fecha); const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  const derivados = atenciones.filter(a => a.derivado !== 'no').length;
+  const alerts = getAlerts();
+  const uniqueStudents = [...new Set(atenciones.map(a => a.estudianteId))].length;
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-icon teal">📋</div>
+      <div class="stat-info">
+        <div class="stat-value">${total}</div>
+        <div class="stat-label">Total Atenciones</div>
+        <div class="stat-change up">↑ ${thisMonth} este mes</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">👨‍🎓</div>
+      <div class="stat-info">
+        <div class="stat-value">${uniqueStudents}</div>
+        <div class="stat-label">Estudiantes atendidos</div>
+        <div class="stat-change up">de ${STUDENTS.length} matriculados</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber">🚑</div>
+      <div class="stat-info">
+        <div class="stat-value">${derivados}</div>
+        <div class="stat-label">Derivaciones</div>
+        <div class="stat-change up">${((derivados/total)*100).toFixed(0)}% del total</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red">⚠️</div>
+      <div class="stat-info">
+        <div class="stat-value">${alerts.length}</div>
+        <div class="stat-label">Alertas activas</div>
+        <div class="stat-change ${alerts.length>0?'down':'up'}">${alerts.length>0?'Requieren atención':'Sin novedad'}</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('alertCountBadge').textContent = alerts.length;
+
+  // Alerts in dash
+  const dashAlerts = document.getElementById('dashAlerts');
+  if (alerts.length === 0) {
+    dashAlerts.innerHTML = '<div class="empty-state" style="padding:24px"><div class="empty-icon">✅</div><p>No hay alertas activas</p></div>';
+  } else {
+    dashAlerts.innerHTML = alerts.slice(0,4).map(a => `
+      <div class="alert-item ${a.critical?'critical':''}">
+        <span class="alert-item-icon">⚠️</span>
+        <div class="alert-item-text">
+          <div class="alert-title">${a.name}</div>
+          <div class="alert-desc">${a.visits} visitas en los últimos ${a.days} días — Curso ${a.curso}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Charts
+  setTimeout(() => {
+    renderChartMensual();
+    renderChartMotivos();
+    renderChartCursos();
+  }, 50);
+}
+
+function getMonthlyData() {
+  const months = [];
+  const counts = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(); d.setMonth(d.getMonth()-i);
+    months.push(d.toLocaleDateString('es-ES',{month:'short'}));
+    counts.push(atenciones.filter(a => {
+      const ad = new Date(a.fecha);
+      return ad.getMonth() === d.getMonth() && ad.getFullYear() === d.getFullYear();
+    }).length);
+  }
+  return { months, counts };
+}
+
+function renderChartMensual() {
+  const ctx = document.getElementById('chartMensual');
+  if (!ctx) return;
+  if (charts.mensual) charts.mensual.destroy();
+  const { months, counts } = getMonthlyData();
+  charts.mensual = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Atenciones',
+        data: counts,
+        backgroundColor: 'rgba(23,169,159,0.7)',
+        borderColor: '#17a99f',
+        borderWidth: 2,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'DM Sans' } } },
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans' } } }
+      }
+    }
+  });
+}
+
+function renderChartMotivos() {
+  const ctx = document.getElementById('chartMotivos');
+  if (!ctx) return;
+  if (charts.motivos) charts.motivos.destroy();
+  const counts = {};
+  atenciones.forEach(a => { counts[a.motivo] = (counts[a.motivo]||0)+1; });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const colors = ['#17a99f','#2cc4ba','#5dd8cf','#0f6b65','#9eeae5','#0d5250'];
+  charts.motivos = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: sorted.map(e=>e[0].split(' / ')[0]),
+      datasets: [{ data: sorted.map(e=>e[1]), backgroundColor: colors, borderWidth: 0 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position:'right', labels: { font:{ family:'DM Sans', size:11 }, boxWidth:12 } }
+      }
+    }
+  });
+}
+
+function renderChartCursos() {
+  const ctx = document.getElementById('chartCursos');
+  if (!ctx) return;
+  if (charts.cursos) charts.cursos.destroy();
+  const counts = {};
+  atenciones.forEach(a => {
+    const st = STUDENTS.find(s=>s.id===a.estudianteId);
+    if (st) counts[st.curso] = (counts[st.curso]||0)+1;
+  });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  charts.cursos = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sorted.map(e=>e[0]),
+      datasets: [{
+        label: 'Atenciones',
+        data: sorted.map(e=>e[1]),
+        backgroundColor: sorted.map((_,i) => `hsl(${175-i*8},60%,${45+i*3}%)`),
+        borderRadius: 4, borderWidth: 0,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font:{ family:'DM Sans' } } },
+        y: { grid: { display: false }, ticks: { font:{ family:'DM Sans',size:11 } } }
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//   ALERTS
+// ═══════════════════════════════════════════════════════════════
+function getAlerts() {
+  const DAYS = 7, THRESHOLD = 3;
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-DAYS);
+  const studentMap = {};
+  atenciones.forEach(a => {
+    if (new Date(a.fecha) >= cutoff) {
+      studentMap[a.estudianteId] = (studentMap[a.estudianteId]||0)+1;
+    }
+  });
+  return Object.entries(studentMap)
+    .filter(([,v]) => v >= THRESHOLD)
+    .map(([id, visits]) => {
+      const st = STUDENTS.find(s=>s.id===parseInt(id));
+      return { id: parseInt(id), name: st?.name||'?', curso: st?.curso||'?', visits, days:DAYS, critical: visits >= 5 };
+    })
+    .sort((a,b)=>b.visits-a.visits);
+}
+
+function renderAlertas() {
+  const alerts = getAlerts();
+  const panel = document.getElementById('alertasPanel');
+  if (alerts.length === 0) {
+    panel.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">✅</div><h3>Sin alertas activas</h3><p>No hay estudiantes con visitas repetitivas en los últimos 7 días.</p></div></div>`;
+    return;
+  }
+  panel.innerHTML = `
+    <div class="card" style="margin-bottom:16px;background:var(--amber-100);border-color:#fde68a">
+      <p style="font-size:13px;color:#92400e">
+        ⚠️ Se detectaron <strong>${alerts.length} estudiante(s)</strong> con <strong>3 o más visitas en los últimos 7 días</strong>.
+        Se recomienda notificar a los apoderados y evaluar derivación médica.
+      </p>
+    </div>
+    ${alerts.map(a => `
+      <div class="card" style="margin-bottom:12px;border-left:4px solid ${a.critical?'var(--red-500)':'var(--amber-500)'}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--slate-900)">${a.name}</div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:2px">Curso: ${a.curso}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span class="badge ${a.critical?'badge-red':'badge-amber'}">${a.visits} visitas en ${a.days} días</span>
+            ${a.critical?'<span class="badge badge-red">🚨 CRÍTICO</span>':''}
+            <button class="btn btn-primary btn-sm" onclick="verFichaDesde(${a.id})">Ver ficha</button>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div style="font-size:11px;font-weight:600;color:var(--slate-500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Últimas visitas:</div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Fecha</th><th>Motivo</th><th>Tratamiento</th><th>Estado</th></tr></thead>
+            <tbody>
+              ${atenciones.filter(at => {
+                const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-7);
+                return at.estudianteId===a.id && new Date(at.fecha)>=cutoff;
+              }).sort((x,y)=>new Date(y.fecha)-new Date(x.fecha)).map(at => `
+                <tr>
+                  <td>${formatDate(at.fecha)}</td>
+                  <td>${at.motivo}</td>
+                  <td>${at.tratamiento}</td>
+                  <td>${estadoBadge(at.estado)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function verFichaDesde(studentId) {
+  showView('estudiantes');
+  setTimeout(()=>loadFicha(studentId), 50);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//   HISTORIAL
+// ═══════════════════════════════════════════════════════════════
+function renderHistorial(data = null) {
+  const body = document.getElementById('historialBody');
+  const list = data || [...atenciones].sort((a,b)=>new Date(b.fecha+' '+b.hora)-new Date(a.fecha+' '+a.hora));
+  document.getElementById('historialCount').textContent = list.length+' registros';
+  if (list.length === 0) {
+    body.innerHTML = `<tr><td colspan="8"><div class="empty-state" style="padding:32px"><div class="empty-icon">📭</div><h3>Sin resultados</h3></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(a => {
+    const st = STUDENTS.find(s=>s.id===a.estudianteId);
+    return `<tr>
+      <td class="td-name">${st?.name||'?'}</td>
+      <td>${st?.curso||'?'}</td>
+      <td>${formatDate(a.fecha)}</td>
+      <td>${a.hora}</td>
+      <td>${a.motivo}</td>
+      <td>${estadoBadge(a.estado)}</td>
+      <td>${a.derivado!=='no'?'<span class="badge badge-red">Sí</span>':'<span class="badge badge-gray">No</span>'}</td>
+      <td><button class="btn btn-secondary btn-sm" onclick="verDetalle(${a.id})">👁 Ver</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrarHistorial() {
+  const q = document.getElementById('searchHistorial').value.toLowerCase();
+  const curso = document.getElementById('filterCurso').value;
+  const motivo = document.getElementById('filterMotivo').value;
+  const fecha = document.getElementById('filterFecha').value;
+
+  const list = atenciones.filter(a => {
+    const st = STUDENTS.find(s=>s.id===a.estudianteId);
+    const name = st?.name?.toLowerCase()||'';
+    const stCurso = st?.curso||'';
+    if (q && !name.includes(q) && !a.motivo.toLowerCase().includes(q) && !stCurso.toLowerCase().includes(q)) return false;
+    if (curso && stCurso !== curso) return false;
+    if (motivo && a.motivo !== motivo) return false;
+    if (fecha && a.fecha !== fecha) return false;
+    return true;
+  }).sort((a,b)=>new Date(b.fecha+' '+b.hora)-new Date(a.fecha+' '+a.hora));
+
+  renderHistorial(list);
+}
+
+function limpiarFiltros() {
+  document.getElementById('searchHistorial').value = '';
+  document.getElementById('filterCurso').value = '';
+  document.getElementById('filterMotivo').value = '';
+  document.getElementById('filterFecha').value = '';
+  renderHistorial();
+}
+
+function verDetalle(id) {
+  const a = atenciones.find(x=>x.id===id);
+  if (!a) return;
+  const st = STUDENTS.find(s=>s.id===a.estudianteId);
+  document.getElementById('modalDetalleBody').innerHTML = `
+    <div class="grid-2" style="margin-bottom:16px;gap:12px">
+      ${infoField('👤 Estudiante', st?.name||'?')}
+      ${infoField('📚 Curso', st?.curso||'?')}
+      ${infoField('📅 Fecha', formatDate(a.fecha))}
+      ${infoField('🕐 Hora', a.hora)}
+      ${infoField('🤒 Motivo', a.motivo)}
+      ${infoField('📊 Estado', estadoBadge(a.estado))}
+      ${a.temperatura ? infoField('🌡 Temperatura', a.temperatura+'°C') : ''}
+      ${infoField('🚑 Derivación', a.derivado==='no'?'No':'Sí — '+a.derivado)}
+      ${infoField('📞 Notif. apoderado', {no:'No fue necesario',si:'Sí, notificado',pendiente:'Pendiente'}[a.notifApo])}
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--teal-700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Diagnóstico</div>
+      <p style="font-size:13px;color:var(--slate-700);background:var(--slate-50);padding:10px;border-radius:8px">${a.diagnostico}</p>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--teal-700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Tratamiento</div>
+      <p style="font-size:13px;color:var(--slate-700);background:var(--slate-50);padding:10px;border-radius:8px">${a.tratamiento}</p>
+    </div>
+    ${a.observaciones ? `
+    <div>
+      <div style="font-size:11px;font-weight:600;color:var(--teal-700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Observaciones</div>
+      <p style="font-size:13px;color:var(--slate-700);background:var(--slate-50);padding:10px;border-radius:8px">${a.observaciones}</p>
+    </div>` : ''}
+  `;
+  document.getElementById('modalDeleteBtn').onclick = ()=>{ eliminarAtencion(id); closeModal('modalDetalle'); };
+  document.getElementById('modalDetalle').classList.add('open');
+}
+
+function infoField(label, value) {
+  return `<div>
+    <div style="font-size:11px;font-weight:600;color:var(--slate-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${label}</div>
+    <div style="font-size:13px;color:var(--slate-800);font-weight:500">${value}</div>
+  </div>`;
+}
+
+function eliminarAtencion(id) {
+  if (currentUser.role === 'parent') { showToast('Sin permisos para eliminar','error'); return; }
+  atenciones = atenciones.filter(a=>a.id!==id);
+  showToast('Atención eliminada','success');
+  renderHistorial();
+  renderDashboard();
+  buildNav();
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════════════════════════════
+//   FORM — NUEVA ATENCIÓN
+// ═══════════════════════════════════════════════════════════════
+function populateFormSelects() {
+  // Set default date & time
+  const now = new Date();
+  document.getElementById('fFecha').value = now.toISOString().split('T')[0];
+  document.getElementById('fHora').value = now.toTimeString().slice(0,5);
+
+  // Populate filter selects
+  const cursosSet = [...new Set(STUDENTS.map(s=>s.curso))].sort();
+  const filterCurso = document.getElementById('filterCurso');
+  cursosSet.forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; filterCurso.appendChild(o); });
+
+  const motivosSet = [...new Set(SAMPLE_ATENCIONES.map(a=>a.motivo))].sort();
+  const filterMotivo = document.getElementById('filterMotivo');
+  motivosSet.forEach(m => { const o=document.createElement('option'); o.value=m; o.textContent=m; filterMotivo.appendChild(o); });
+
+  // Close autocomplete on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#fEstudianteNombre') && !e.target.closest('#fEstudianteSugerencias')) {
+      document.getElementById('fEstudianteSugerencias').style.display = 'none';
+    }
+  });
+}
+
+function buscarEnFormulario() {
+  const q = document.getElementById('fEstudianteNombre').value.trim().toLowerCase();
+  const box = document.getElementById('fEstudianteSugerencias');
+  // Clear selection when user types
+  document.getElementById('fEstudiante').value = '';
+  document.getElementById('fCurso').value = '';
+
+  if (q.length < 1) { box.style.display = 'none'; return; }
+
+  const matches = STUDENTS.filter(s => s.name.toLowerCase().includes(q));
+  if (matches.length === 0) {
+    box.style.display = 'block';
+    box.innerHTML = `<div style="padding:10px 14px;font-size:13px;color:var(--slate-400)">Sin coincidencias</div>`;
+    return;
+  }
+  box.style.display = 'block';
+  box.innerHTML = matches.map(s => `
+    <div onclick="seleccionarEstudiante(${s.id})" style="
+      padding:10px 14px; cursor:pointer; font-size:13px;
+      display:flex; align-items:center; gap:10px;
+      border-bottom:1px solid var(--slate-50);
+      transition:background .15s;
+    "
+    onmouseover="this.style.background='var(--teal-50)'"
+    onmouseout="this.style.background=''">
+      <div style="width:30px;height:30px;background:var(--teal-100);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--teal-700);flex-shrink:0">
+        ${s.name.split(' ').map(n=>n[0]).slice(0,2).join('')}
+      </div>
+      <div>
+        <div style="font-weight:600;color:var(--slate-900)">${s.name}</div>
+        <div style="font-size:11px;color:var(--slate-400)">${s.curso} · ${s.grado}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function seleccionarEstudiante(id) {
+  const st = STUDENTS.find(s=>s.id===id);
+  if (!st) return;
+  document.getElementById('fEstudianteNombre').value = st.name;
+  document.getElementById('fEstudiante').value = st.id;
+  document.getElementById('fCurso').value = st.curso;
+  document.getElementById('fEstudianteSugerencias').style.display = 'none';
+}
+
+function checkOtroMotivo() {
+  const v = document.getElementById('fMotivo').value;
+  document.getElementById('otroMotivoGroup').style.display = v === 'Otro' ? 'block' : 'none';
+}
+
+function guardarAtencion(e) {
+  e.preventDefault();
+  if (currentUser.role === 'parent') { showToast('Sin permisos para registrar atenciones','error'); return; }
+
+  const estId = parseInt(document.getElementById('fEstudiante').value);
+  const nombreInput = document.getElementById('fEstudianteNombre').value.trim();
+  if (!estId || !nombreInput) { showToast('Debes seleccionar un estudiante de la lista','error'); document.getElementById('fEstudianteNombre').focus(); return; }
+
+  let motivo = document.getElementById('fMotivo').value;
+  if (motivo === 'Otro') motivo = document.getElementById('fOtroMotivo').value || 'Otro';
+
+  const atencion = {
+    id: nextId++,
+    estudianteId: estId,
+    motivo,
+    diagnostico: document.getElementById('fDiagnostico').value,
+    tratamiento: document.getElementById('fTratamiento').value,
+    fecha: document.getElementById('fFecha').value,
+    hora: document.getElementById('fHora').value,
+    derivado: document.getElementById('fDerivado').value,
+    notifApo: document.getElementById('fNotifApo').value,
+    estado: document.getElementById('fEstado').value,
+    temperatura: document.getElementById('fTemp').value,
+    observaciones: document.getElementById('fObservaciones').value,
+  };
+
+  atenciones.unshift(atencion);
+  showToast('✅ Atención registrada exitosamente','success');
+  resetForm();
+
+  // Check for alert
+  const alerts = getAlerts();
+  const alert = alerts.find(a=>a.id===estId);
+  if (alert) {
+    setTimeout(()=>showToast(`⚠️ ALERTA: ${alert.name} tiene ${alert.visits} visitas en 7 días`,'warning'), 1200);
+  }
+
+  document.getElementById('notifDot').style.display = getAlerts().length > 0 ? 'block' : 'none';
+  buildNav();
+  showView('historial');
+}
+
+function resetForm() {
+  document.getElementById('formAtencion').reset();
+  const now = new Date();
+  document.getElementById('fFecha').value = now.toISOString().split('T')[0];
+  document.getElementById('fHora').value = now.toTimeString().slice(0,5);
+  document.getElementById('fEstudianteNombre').value = '';
+  document.getElementById('fEstudiante').value = '';
+  document.getElementById('fCurso').value = '';
+  document.getElementById('fEstudianteSugerencias').style.display = 'none';
+  document.getElementById('otroMotivoGroup').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//   ESTUDIANTES / FICHAS
+// ═══════════════════════════════════════════════════════════════
+function renderEstudiantesList() {
+  const list = document.getElementById('listaEstudiantes');
+  const q = document.getElementById('searchEstudiante').value.toLowerCase();
+  const filtered = q ? STUDENTS.filter(s=>s.name.toLowerCase().includes(q)) : STUDENTS;
+  list.innerHTML = filtered.map(s => {
+    const count = atenciones.filter(a=>a.estudianteId===s.id).length;
+    const alerts = getAlerts().find(a=>a.id===s.id);
+    return `<div onclick="loadFicha(${s.id})" style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;cursor:pointer;margin-bottom:4px;transition:background .15s;border:1px solid transparent" 
+      onmouseover="this.style.background='var(--teal-50)'" onmouseout="this.style.background=''">
+      <div style="width:36px;height:36px;background:var(--teal-100);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--teal-700);flex-shrink:0">
+        ${s.name.split(' ').map(n=>n[0]).slice(0,2).join('')}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--slate-900)">${s.name}</div>
+        <div style="font-size:11px;color:var(--slate-500)">${s.curso} • ${count} atenciones</div>
+      </div>
+      ${alerts?'<span class="badge badge-red" title="Alerta activa">⚠️</span>':''}
+    </div>`;
+  }).join('');
+}
+
+function buscarEstudiante() { renderEstudiantesList(); }
+
+function loadFicha(studentId) {
+  const st = STUDENTS.find(s=>s.id===studentId);
+  if (!st) return;
+  const stAtenciones = atenciones.filter(a=>a.estudianteId===studentId).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  const alertInfo = getAlerts().find(a=>a.id===studentId);
+
+  document.getElementById('fichaEstudiante').innerHTML = `
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+        <div style="width:56px;height:56px;background:linear-gradient(135deg,var(--teal-600),var(--teal-400));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:white;flex-shrink:0">
+          ${st.name.split(' ').map(n=>n[0]).slice(0,2).join('')}
+        </div>
+        <div style="flex:1">
+          <h3 style="font-size:18px;font-weight:700;color:var(--slate-900)">${st.name}</h3>
+          <div style="font-size:13px;color:var(--slate-500);margin-top:2px">${st.curso} — ${st.grado}</div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <span class="badge badge-teal">${stAtenciones.length} atenciones</span>
+            ${alertInfo ? `<span class="badge badge-red">⚠️ ${alertInfo.visits} visitas en 7 días</span>` : ''}
+            ${st.alergias !== 'Ninguna' ? `<span class="badge badge-amber">⚠️ Alergia: ${st.alergias}</span>` : ''}
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="preRegistrarPara(${st.id})">➕ Registrar atención</button>
+      </div>
+      <hr style="margin:14px 0;border:none;border-top:1px solid var(--slate-100)">
+      <div class="grid-2" style="gap:8px">
+        ${infoField('📞 Apoderado', st.apoderado)}
+        ${infoField('📱 Teléfono', st.tel)}
+        ${infoField('💊 Alergias', st.alergias)}
+      </div>
+    </div>
+
+    ${alertInfo ? `<div class="card" style="background:var(--red-100);border-color:#fca5a5;margin-bottom:12px">
+      <div style="display:flex;gap:10px;align-items:center">
+        <span style="font-size:20px">🚨</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#991b1b">ALERTA ACTIVA</div>
+          <div style="font-size:12px;color:#991b1b">${alertInfo.name} ha visitado la enfermería ${alertInfo.visits} veces en los últimos 7 días. Se recomienda notificar al apoderado y considerar derivación médica.</div>
+        </div>
+      </div>
+    </div>` : ''}
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📋 Historial clínico (${stAtenciones.length})</div>
+      </div>
+      ${stAtenciones.length === 0 ? '<div class="empty-state" style="padding:24px"><div class="empty-icon">📭</div><p>Sin atenciones registradas</p></div>' : `
+        <div class="timeline">
+          ${stAtenciones.map(a => `
+            <div class="timeline-item">
+              <div class="timeline-dot">🏥</div>
+              <div class="timeline-content">
+                <div class="timeline-meta">
+                  <span>📅 ${formatDate(a.fecha)}</span>
+                  <span>🕐 ${a.hora}</span>
+                  ${estadoBadge(a.estado)}
+                </div>
+                <div class="timeline-title">${a.motivo}</div>
+                <div class="timeline-body">
+                  <strong>Diagnóstico:</strong> ${a.diagnostico}<br>
+                  <strong>Tratamiento:</strong> ${a.tratamiento}
+                  ${a.observaciones ? `<br><strong>Obs.:</strong> ${a.observaciones}` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `}
+    </div>
+  `;
+}
+
+function preRegistrarPara(studentId) {
+  showView('nueva-atencion');
+  setTimeout(()=>{
+    const st = STUDENTS.find(s=>s.id===studentId);
+    if (st) {
+      document.getElementById('fEstudianteNombre').value = st.name;
+      document.getElementById('fEstudiante').value = st.id;
+      document.getElementById('fCurso').value = st.curso;
+    }
+  }, 50);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//   REPORTES
+// ═══════════════════════════════════════════════════════════════
+function populateReporteSelect() {
+  const sel = document.getElementById('reporteEstSelect');
+  sel.innerHTML = '<option value="">-- Seleccionar --</option>';
+  STUDENTS.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id; opt.textContent = `${s.name} — ${s.curso}`;
+    sel.appendChild(opt);
+  });
+}
+
+function generarReporteIndividual() {
+  const estId = parseInt(document.getElementById('reporteEstSelect').value);
+  const dias = parseInt(document.getElementById('reportePeriodo').value);
+  if (!estId) { showToast('Selecciona un estudiante','error'); return; }
+
+  const st = STUDENTS.find(s=>s.id===estId);
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-dias);
+  const lista = atenciones.filter(a => a.estudianteId===estId && new Date(a.fecha)>=cutoff)
+                           .sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+
+  const motivosCounts = {};
+  lista.forEach(a => { motivosCounts[a.motivo] = (motivosCounts[a.motivo]||0)+1; });
+  const topMotivo = Object.entries(motivosCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('reporteIndividualContent').innerHTML = `
+    <div class="report-preview no-print" style="max-width:820px">
+      <div class="report-header">
+        <div class="report-logo">🏥</div>
+        <div>
+          <h3>Reporte Individual — Enfermería Escolar</h3>
+          <p>Colegio San Martín de Porres · Generado el ${new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}</p>
+        </div>
+      </div>
+      <div class="report-body">
+        <div class="report-section">
+          <h4>Datos del Estudiante</h4>
+          <div class="report-row"><strong>Nombre completo</strong><span>${st.name}</span></div>
+          <div class="report-row"><strong>Curso / Grado</strong><span>${st.curso} — ${st.grado}</span></div>
+          <div class="report-row"><strong>Apoderado</strong><span>${st.apoderado} (${st.tel})</span></div>
+          <div class="report-row"><strong>Alergias conocidas</strong><span>${st.alergias}</span></div>
+        </div>
+        <div class="report-section">
+          <h4>Resumen del Período (últimos ${dias} días)</h4>
+          <div class="report-row"><strong>Total de atenciones</strong><span>${lista.length}</span></div>
+          <div class="report-row"><strong>Derivaciones médicas</strong><span>${lista.filter(a=>a.derivado!=='no').length}</span></div>
+          <div class="report-row"><strong>Motivo más frecuente</strong><span>${topMotivo?topMotivo[0]+' ('+topMotivo[1]+'x)':'—'}</span></div>
+          <div class="report-row"><strong>Alertas activas</strong><span>${getAlerts().find(a=>a.id===estId)?'Sí — visitas repetitivas detectadas':'No'}</span></div>
+        </div>
+        ${lista.length > 0 ? `
+        <div class="report-section">
+          <h4>Registro de Atenciones</h4>
+          <table style="width:100%;font-size:12px;border-collapse:collapse">
+            <thead><tr style="background:var(--teal-50)">
+              <th style="padding:8px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--teal-700)">Fecha</th>
+              <th style="padding:8px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--teal-700)">Motivo</th>
+              <th style="padding:8px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--teal-700)">Diagnóstico</th>
+              <th style="padding:8px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--teal-700)">Estado</th>
+            </tr></thead>
+            <tbody>${lista.map(a=>`
+              <tr style="border-top:1px solid var(--slate-100)">
+                <td style="padding:7px 8px">${formatDate(a.fecha)}</td>
+                <td style="padding:7px 8px">${a.motivo}</td>
+                <td style="padding:7px 8px">${a.diagnostico}</td>
+                <td style="padding:7px 8px">${a.estado}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : ''}
+        <div class="report-section">
+          <h4>Observaciones Generales</h4>
+          <p style="font-size:12px;color:var(--slate-600);line-height:1.7">
+            ${lista.length === 0 ? 'El estudiante no registra atenciones en el período seleccionado.' :
+              `El estudiante ha registrado ${lista.length} atención(es) en el período analizado. 
+               ${getAlerts().find(a=>a.id===estId)?'Se ha activado una alerta por visitas repetitivas. Se recomienda evaluación médica especializada y comunicación con el apoderado.':
+               'No se detectan patrones de visitas repetitivas en el período.'}`}
+          </p>
+        </div>
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--slate-100);display:flex;justify-content:space-between;font-size:11px;color:var(--slate-400)">
+          <span>Elaborado por: ${currentUser.name}</span>
+          <span>Firmado digitalmente — SaludEscolar v1.0</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px" class="no-print">
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir / Exportar PDF</button>
+    </div>
+  `;
+}
+
+function generarReporteGeneral() {
+  const periodo = document.getElementById('reporteGeneralPeriodo').value;
+  const destinatario = document.getElementById('reporteDestinatario').value;
+  const ahora = new Date();
+  let cutoff = new Date();
+  const labels = { mes:'Este Mes', trimestre:'Este Trimestre', anio:'Este Año' };
+  if (periodo==='mes') cutoff.setDate(1);
+  else if (periodo==='trimestre') cutoff.setMonth(cutoff.getMonth()-3);
+  else cutoff.setMonth(0), cutoff.setDate(1);
+
+  const lista = atenciones.filter(a=>new Date(a.fecha)>=cutoff);
+  const totalEst = [...new Set(lista.map(a=>a.estudianteId))].length;
+  const derivados = lista.filter(a=>a.derivado!=='no').length;
+
+  const motivoCounts = {};
+  lista.forEach(a=>{ motivoCounts[a.motivo]=(motivoCounts[a.motivo]||0)+1; });
+  const topMotivos = Object.entries(motivoCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  const cursoCounts = {};
+  lista.forEach(a=>{
+    const st=STUDENTS.find(s=>s.id===a.estudianteId);
+    if(st) cursoCounts[st.curso]=(cursoCounts[st.curso]||0)+1;
+  });
+  const topCursos = Object.entries(cursoCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  const destLabel = { direccion:'Dirección del Centro Educativo', mineduc:'MINEDUC / Autoridades', general:'Informe General' }[destinatario];
+
+  document.getElementById('reporteGeneralContent').innerHTML = `
+    <div class="report-preview no-print" style="max-width:820px">
+      <div class="report-header">
+        <div class="report-logo">🏥</div>
+        <div>
+          <h3>Reporte General de Enfermería — ${labels[periodo]}</h3>
+          <p>Para: ${destLabel} · Generado el ${ahora.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}</p>
+        </div>
+      </div>
+      <div class="report-body">
+        <div class="report-section">
+          <h4>Estadísticas Generales del Período</h4>
+          <div class="report-row"><strong>Total de atenciones registradas</strong><span>${lista.length}</span></div>
+          <div class="report-row"><strong>Estudiantes distintos atendidos</strong><span>${totalEst} de ${STUDENTS.length} matriculados (${((totalEst/STUDENTS.length)*100).toFixed(0)}%)</span></div>
+          <div class="report-row"><strong>Promedio de atenciones diarias</strong><span>${(lista.length/30).toFixed(1)}</span></div>
+          <div class="report-row"><strong>Derivaciones a centros médicos</strong><span>${derivados} (${lista.length>0?((derivados/lista.length)*100).toFixed(0):0}%)</span></div>
+          <div class="report-row"><strong>Alertas por visitas repetitivas</strong><span>${getAlerts().length} estudiante(s)</span></div>
+        </div>
+
+        <div class="report-section">
+          <h4>Motivos de Consulta más Frecuentes</h4>
+          ${topMotivos.map(([m,c],i)=>`
+            <div style="margin-bottom:8px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+                <span>${i+1}. ${m}</span><span style="font-weight:600">${c} casos</span>
+              </div>
+              <div class="progress"><div class="progress-bar" style="width:${(c/topMotivos[0][1])*100}%"></div></div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="report-section">
+          <h4>Cursos con Mayor Número de Atenciones</h4>
+          ${topCursos.map(([c,n],i)=>`
+            <div style="margin-bottom:8px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+                <span>${i+1}. ${c}</span><span style="font-weight:600">${n} atenciones</span>
+              </div>
+              <div class="progress"><div class="progress-bar" style="width:${(n/topCursos[0][1])*100}%"></div></div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="report-section">
+          <h4>Recomendaciones</h4>
+          <ul style="font-size:12px;color:var(--slate-600);line-height:2;padding-left:20px">
+            ${lista.filter(a=>a.motivo.includes('cabeza')).length > 3 ? '<li>Se registra alta frecuencia de cefaleas — se recomienda revisión de ergonomía y ventilación de salas.</li>' : ''}
+            ${derivados > 2 ? '<li>Se realizaron '+derivados+' derivaciones. Revisar stock de medicamentos de urgencia.</li>' : ''}
+            ${getAlerts().length > 0 ? '<li>Existen '+getAlerts().length+' estudiante(s) con alertas activas. Se recomienda comunicación con apoderados y seguimiento médico.</li>' : '<li>No se detectan patrones de visitas repetitivas preocupantes en el período.</li>'}
+            <li>Se recomienda mantener actualizado el registro de alergias de todos los estudiantes.</li>
+            <li>Continuar con los controles rutinarios de salud preventiva mensual.</li>
+          </ul>
+        </div>
+
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--slate-100);display:flex;justify-content:space-between;font-size:11px;color:var(--slate-400)">
+          <span>Lic. Enfermería: ${currentUser.name}</span>
+          <span>Sello: Enfermería Escolar — SaludEscolar v1.0</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px" class="no-print">
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir / Exportar PDF</button>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//   TABS
+// ═══════════════════════════════════════════════════════════════
+function switchTab(group, id, btn) {
+  document.querySelectorAll(`#view-${group} .tab-btn`).forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll(`#view-${group} .tab-panel`).forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${group}-${id}`).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//   UTILITIES
+// ═══════════════════════════════════════════════════════════════
+function formatDate(d) {
+  if (!d) return '—';
+  const parts = d.split('-');
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+function estadoBadge(estado) {
+  const map = {
+    alta:     ['badge-green','Alta'],
+    reposo:   ['badge-amber','En reposo'],
+    derivado: ['badge-red','Derivado'],
+    recogido: ['badge-blue','Recogido'],
+  };
+  const [cls, label] = map[estado] || ['badge-gray', estado];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function showToast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icons = { success:'✅', error:'❌', warning:'⚠️' };
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
+}
+
+// Close sidebar on outside click
+document.addEventListener('click', e => {
+  const sb = document.getElementById('sidebar');
+  if (sb && sb.classList.contains('open') && !sb.contains(e.target) && !e.target.closest('.hamburger')) {
+    closeSidebar();
+  }
+});
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click', e=>{ if(e.target===o) closeModal(o.id); });
+});
+
+// Enter key on login
+document.getElementById('loginUser').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>
