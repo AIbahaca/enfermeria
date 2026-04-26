@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Reportes</title>
+</head>
+<body>
+
+<h2>Reportes</h2>
+<button onclick="window.location.href='dashboard.html'">← Volver</button>
+
+<br><br>
+
+<label>Estudiante (con al menos 1 atención):</label>
+<select id="select-estudiante">
+  <option value="">-- Selecciona un estudiante --</option>
+</select>
+<button onclick="generarReporte()">Ver reporte</button>
+
+<br><br>
+
+<div id="reporte"></div>
+
+<script src="app.js"></script>
+<script>
+
+async function cargarEstudiantes() {
+  const res  = await fetch(API + "/reportes/estudiantes");
+  const data = await res.json();
+  const sel  = document.getElementById("select-estudiante");
+
+  if (data.length === 0) {
+    sel.innerHTML = "<option disabled>Sin estudiantes con atenciones registradas</option>";
+    return;
+  }
+
+  data.forEach(e => {
+    sel.innerHTML += `<option value="${e.id_estudiante}">${e.nombre_completo} — ${e.nombre_curso || "Sin curso"}</option>`;
+  });
+}
+
+async function generarReporte() {
+  const id = document.getElementById("select-estudiante").value;
+  if (!id) { alert("Selecciona un estudiante."); return; }
+
+  const res  = await fetch(API + "/reportes/estudiante/" + id);
+  const data = await res.json();
+  const div  = document.getElementById("reporte");
+
+  if (data.length === 0) {
+    div.innerHTML = "<p>Sin atenciones registradas para este estudiante.</p>";
+    return;
+  }
+
+  const estudiante  = data[0].nombre_estudiante;
+  const curso       = data[0].nombre_curso || "—";
+
+  let filas = data.map((a, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${a.fecha || "—"}</td>
+      <td>${a.hora || "—"}</td>
+      <td>${a.sintomas || "—"}</td>
+      <td>${a.diagnostico || "—"}</td>
+      <td>${a.accion || "—"}</td>
+    </tr>
+  `).join("");
+
+  div.innerHTML = `
+    <h3>Reporte de: ${estudiante}</h3>
+    <p>Curso: ${curso} &nbsp;|&nbsp; Total de atenciones: ${data.length}</p>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Síntomas</th>
+          <th>Diagnóstico</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>${filas}</tbody>
+    </table>
+    <br>
+    <button onclick="window.print()">🖨️ Imprimir</button>
+  `;
+}
+
+cargarEstudiantes();
+
+</script>
+</body>
+</html>

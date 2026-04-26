@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Alertas</title>
+</head>
+<body>
+
+<h2>Alertas</h2>
+<button onclick="window.location.href='dashboard.html'">← Volver</button>
+
+<p>Las alertas se generan automáticamente cuando un estudiante registra 3 o más atenciones en los últimos 7 días.</p>
+
+<br>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Estudiante</th>
+      <th>Curso</th>
+      <th>Tipo</th>
+      <th>Descripción</th>
+      <th>Fecha</th>
+      <th>Acción</th>
+    </tr>
+  </thead>
+  <tbody id="tabla-alertas"></tbody>
+</table>
+
+<script src="app.js"></script>
+<script>
+
+async function cargarAlertas() {
+  const res  = await fetch(API + "/alertas");
+  const data = await res.json();
+  const tbody = document.getElementById("tabla-alertas");
+  tbody.innerHTML = "";
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7">No hay alertas activas.</td></tr>';
+    return;
+  }
+
+  data.forEach((a, i) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${a.nombre_estudiante}</td>
+        <td>${a.nombre_curso || "—"}</td>
+        <td>${a.tipo || "—"}</td>
+        <td>${a.descripcion || "—"}</td>
+        <td>${a.fecha || "—"}</td>
+        <td><button onclick="eliminar(${a.id_alerta})">Descartar</button></td>
+      </tr>`;
+  });
+}
+
+async function eliminar(id) {
+  if (!confirm("¿Descartar esta alerta?")) return;
+  await fetch(API + "/alertas/" + id, { method: "DELETE" });
+  cargarAlertas();
+}
+
+cargarAlertas();
+
+</script>
+</body>
+</html>

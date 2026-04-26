@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+</head>
+<body>
+
+<h2>Dashboard</h2>
+
+<button onclick="window.location.href='dashboard.html'">Volver</button>
+
+<button onclick="ir('estudiantes.html')">Estudiantes</button>
+<button onclick="ir('atenciones.html')">Atenciones</button>
+<button onclick="ir('alertas.html')">Alertas</button>
+<button onclick="ir('medicamentos.html')">Medicamentos</button>
+<button onclick="ir('reportes.html')">Reportes</button>
+
+<button onclick="logout()">Salir</button>
+
+<script src="app.js"></script>
+<script>
+function ir(pagina){
+  window.location.href = pagina;
+}
+
+function logout(){
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>

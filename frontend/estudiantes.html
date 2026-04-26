@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Estudiantes</title>
+</head>
+<body>
+
+<button onclick="window.location.href='dashboard.html'">← Volver</button>
+
+<h2>Estudiantes por Curso</h2>
+
+<label>Curso:</label>
+<select id="select-curso">
+  <option value="">-- Selecciona un curso --</option>
+</select>
+<button onclick="cargarEstudiantes()">Ver estudiantes</button>
+
+<div id="seccion-estudiantes" style="display:none">
+
+  <h3 id="titulo-curso"></h3>
+
+  <h4>Agregar estudiante</h4>
+  <input type="text"   id="inp-nombre"   placeholder="Nombre *">
+  <input type="number" id="inp-edad"     placeholder="Edad">
+  <input type="text"   id="inp-contacto" placeholder="Contacto emergencia">
+  <button onclick="agregarEstudiante()">Guardar</button>
+  <p id="msg"></p>
+
+  <h4>Listado</h4>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>Edad</th>
+        <th>Contacto</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-estudiantes"></tbody>
+  </table>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+
+let cursoActivo = null;
+
+async function cargarCursos() {
+  const res  = await fetch(API + "/cursos");
+  const data = await res.json();
+  const sel  = document.getElementById("select-curso");
+  data.forEach(c => {
+    sel.innerHTML += `<option value="${c.id_curso}">${c.nombre} (${c.anio})</option>`;
+  });
+}
+
+async function cargarEstudiantes() {
+  const sel = document.getElementById("select-curso");
+  const id_curso = sel.value;
+  if (!id_curso) return alert("Selecciona un curso.");
+
+  cursoActivo = id_curso;
+  document.getElementById("titulo-curso").textContent =
+    sel.options[sel.selectedIndex].text;
+  document.getElementById("seccion-estudiantes").style.display = "block";
+  document.getElementById("msg").textContent = "";
+
+  const res  = await fetch(API + "/estudiantes?id_curso=" + id_curso);
+  const data = await res.json();
+  const tbody = document.getElementById("tabla-estudiantes");
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5">Sin estudiantes en este curso.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = "";
+  data.forEach((e, i) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${e.nombre}</td>
+        <td>${e.edad ?? "—"}</td>
+        <td>${e.contacto_emergencia ?? "—"}</td>
+        <td><button onclick="eliminar(${e.id_estudiante})">Eliminar</button></td>
+      </tr>`;
+  });
+}
+
+async function agregarEstudiante() {
+  const msg = document.getElementById("msg");
+  const nombre   = document.getElementById("inp-nombre").value.trim();
+  const edad     = document.getElementById("inp-edad").value;
+  const contacto = document.getElementById("inp-contacto").value.trim();
+
+  if (!nombre) { msg.textContent = "El nombre es obligatorio."; return; }
+
+  const res = await fetch(API + "/estudiantes", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nombre,
+      edad:                edad ? parseInt(edad) : null,
+      id_curso:            cursoActivo,
+      contacto_emergencia: contacto || null
+    })
+  });
+
+  const data = await res.json();
+  msg.textContent = res.ok ? "✅ " + data.mensaje : "❌ " + data.mensaje;
+
+  if (res.ok) {
+    document.getElementById("inp-nombre").value   = "";
+    document.getElementById("inp-edad").value     = "";
+    document.getElementById("inp-contacto").value = "";
+    cargarEstudiantes();
+  }
+}
+
+async function eliminar(id) {
+  if (!confirm("¿Eliminar estudiante?")) return;
+  await fetch(API + "/estudiantes/" + id, { method: "DELETE" });
+  cargarEstudiantes();
+}
+
+cargarCursos();
+</script>
+
+</body>
+</html>
