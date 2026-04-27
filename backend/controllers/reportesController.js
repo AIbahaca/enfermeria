@@ -5,6 +5,7 @@ exports.obtenerEstudiantesConAtencion = (req, res) => {
   const sql = `
     SELECT DISTINCT e.id_estudiante,
            CONCAT(e.nombre, ' ', IFNULL(e.apellido, '')) AS nombre_completo,
+           e.nombre,
            c.nombre AS nombre_curso
     FROM estudiantes e
     INNER JOIN atenciones a ON e.id_estudiante = a.id_estudiante
