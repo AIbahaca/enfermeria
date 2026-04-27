@@ -1,4 +1,4 @@
-const API = "http://localhost:3000/api";
+const API = "https://enfermeria-production-7f39.up.railway.app/api";
 
 // LOGIN
 async function login() {
