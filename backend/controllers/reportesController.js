@@ -23,7 +23,7 @@ exports.obtenerReporteEstudiante = (req, res) => {
   const sql = `
     SELECT a.*,
            CONCAT(e.nombre, ' ', IFNULL(e.apellido, '')) AS nombre_estudiante,
-           c.nombre AS nombre_curso, c.año
+           c.nombre AS nombre_curso, c.anio
     FROM atenciones a
     LEFT JOIN estudiantes e ON a.id_estudiante = e.id_estudiante
     LEFT JOIN cursos c ON e.id_curso = c.id_curso
