@@ -33,7 +33,6 @@ exports.crearAtencion = (req, res) => {
   db.query(sql, [id_estudiante, fecha, hora || null, sintomas || null, diagnostico || null, accion || null, id_usuario || null], (err, result) => {
     if (err) return res.status(500).json({ error: err });
 
-    // Verificar si corresponde generar alerta automática (3+ atenciones en 7 días)
     const sqlCheck = `
       SELECT COUNT(*) AS total FROM atenciones
       WHERE id_estudiante = ?
@@ -52,6 +51,22 @@ exports.crearAtencion = (req, res) => {
 
     res.json({ mensaje: "Atención registrada correctamente", id: result.insertId });
   });
+};
+
+// PUT actualizar atención
+exports.actualizarAtencion = (req, res) => {
+  const { id } = req.params;
+  const { fecha, hora, sintomas, diagnostico, accion } = req.body;
+
+  db.query(
+    "UPDATE atenciones SET fecha=?, hora=?, sintomas=?, diagnostico=?, accion=? WHERE id_atencion=?",
+    [fecha, hora || null, sintomas || null, diagnostico || null, accion || null, id],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err });
+      if (result.affectedRows === 0) return res.status(404).json({ mensaje: "Atención no encontrada" });
+      res.json({ mensaje: "Atención actualizada correctamente" });
+    }
+  );
 };
 
 // DELETE
