@@ -6,6 +6,33 @@
   <title>Estudiantes — Enfermería</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="Style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    .import-zone {
+      border: 2px dashed var(--teal-300);
+      border-radius: var(--radius);
+      padding: 2rem;
+      text-align: center;
+      background: var(--teal-50);
+      cursor: pointer;
+      transition: all .2s;
+      margin-bottom: 1rem;
+    }
+    .import-zone:hover { background: var(--teal-100); border-color: var(--teal-500); }
+    .import-zone .zone-icon { font-size: 2.5rem; margin-bottom: .5rem; }
+    .import-zone h4 { color: var(--teal-700); margin-bottom: .3rem; }
+    .import-zone p  { font-size: 12px; color: var(--slate-500); }
+    #input-excel { display: none; }
+
+    .preview-table-wrap { max-height: 300px; overflow-y: auto; margin: 1rem 0; border-radius: var(--radius-sm); border: 1px solid var(--slate-200); }
+    .preview-table-wrap table thead { position: sticky; top: 0; }
+
+    .import-result { font-size: 13px; margin-top: .5rem; }
+    .import-result .ok  { color: #16a34a; }
+    .import-result .err { color: var(--red-500); }
+
+    .template-link { font-size: 12px; color: var(--teal-600); cursor: pointer; text-decoration: underline; }
+  </style>
 </head>
 <body>
 <div class="app-shell">
@@ -55,10 +82,11 @@
       <div class="page-header-inner">
         <div>
           <h2 class="page-title">Estudiantes por Curso</h2>
-          <p class="page-subtitle">Selecciona un curso para ver y gestionar los estudiantes</p>
+          <p class="page-subtitle">Agrega estudiantes manualmente o importa desde Excel</p>
         </div>
       </div>
 
+      <!-- SELECTOR DE CURSO -->
       <div class="card">
         <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
           <div style="flex:1;min-width:200px;">
@@ -72,11 +100,13 @@
       </div>
 
       <div id="seccion-estudiantes" style="display:none">
+
+        <!-- AGREGAR MANUALMENTE -->
         <div class="card">
           <h3 id="titulo-curso"></h3>
-          <h4 style="margin-bottom:1rem;">Agregar estudiante</h4>
+          <h4 style="margin-bottom:1rem;">Agregar estudiante manualmente</h4>
           <div class="form-grid">
-            <div><label>Nombre *</label><input class="form-control" type="text" id="inp-nombre" placeholder="Nombre del estudiante"></div>
+            <div><label>Nombre *</label><input class="form-control" type="text" id="inp-nombre" placeholder="Nombre completo"></div>
             <div><label>Edad</label><input class="form-control" type="number" id="inp-edad" placeholder="Edad"></div>
             <div><label>Contacto de emergencia</label><input class="form-control" type="text" id="inp-contacto" placeholder="Nombre y teléfono"></div>
           </div>
@@ -84,6 +114,43 @@
           <p id="msg"></p>
         </div>
 
+        <!-- IMPORTAR DESDE EXCEL -->
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">📂 Importar desde Excel / CSV</div>
+            <span class="template-link" onclick="descargarPlantilla()">⬇️ Descargar plantilla</span>
+          </div>
+
+          <div class="import-zone" onclick="document.getElementById('input-excel').click()"
+               ondragover="event.preventDefault()" ondrop="manejarDrop(event)">
+            <div class="zone-icon">📊</div>
+            <h4>Arrastra tu archivo aquí o haz clic para seleccionar</h4>
+            <p>Formatos aceptados: .xlsx, .xls, .csv &nbsp;|&nbsp; Columnas requeridas: <strong>nombre</strong>, edad, contacto_emergencia</p>
+          </div>
+          <input type="file" id="input-excel" accept=".xlsx,.xls,.csv" onchange="leerArchivo(this.files[0])">
+
+          <!-- VISTA PREVIA -->
+          <div id="preview-section" style="display:none">
+            <div class="card-header-row" style="margin-top:1rem">
+              <div class="card-title">Vista previa — <span id="preview-count">0</span> estudiantes encontrados</div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-secondary btn-sm" onclick="cancelarImport()">✖ Cancelar</button>
+                <button class="btn btn-primary btn-sm" onclick="importarEstudiantes()">✅ Importar todos</button>
+              </div>
+            </div>
+            <div class="preview-table-wrap">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Nombre</th><th>Edad</th><th>Contacto emergencia</th><th>Estado</th></tr>
+                </thead>
+                <tbody id="tabla-preview"></tbody>
+              </table>
+            </div>
+            <div class="import-result" id="import-result"></div>
+          </div>
+        </div>
+
+        <!-- LISTADO -->
         <div class="card">
           <div class="card-header-row">
             <div class="card-title">Listado de Estudiantes</div>
@@ -98,7 +165,8 @@
             </table>
           </div>
         </div>
-      </div>
+
+      </div><!-- /seccion-estudiantes -->
     </div>
   </div>
 </div>
@@ -109,7 +177,9 @@ function logout(){ localStorage.removeItem("user"); location.href="login.html"; 
 function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 
 let cursoActivo = null;
+let datosImport = [];
 
+// ── CURSOS ──
 async function cargarCursos() {
   const res = await fetch(API + "/cursos");
   const data = await res.json();
@@ -117,6 +187,7 @@ async function cargarCursos() {
   data.forEach(c => { sel.innerHTML += `<option value="${c.id_curso}">${c.nombre} (${c.anio})</option>`; });
 }
 
+// ── ESTUDIANTES ──
 async function cargarEstudiantes() {
   const sel = document.getElementById("select-curso");
   const id_curso = sel.value;
@@ -172,6 +243,110 @@ async function eliminar(id) {
   if (!confirm("¿Eliminar estudiante?")) return;
   await fetch(API + "/estudiantes/" + id, { method: "DELETE" });
   cargarEstudiantes();
+}
+
+// ── IMPORTAR EXCEL ──
+function manejarDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) leerArchivo(file);
+}
+
+function leerArchivo(file) {
+  if (!file) return;
+  if (!cursoActivo) { alert("Primero selecciona un curso."); return; }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const hoja = workbook.Sheets[workbook.SheetNames[0]];
+    const filas = XLSX.utils.sheet_to_json(hoja, { defval: "" });
+
+    if (filas.length === 0) {
+      alert("El archivo está vacío o no tiene el formato correcto.");
+      return;
+    }
+
+    // Normalizar columnas (acepta variaciones de nombre)
+    datosImport = filas.map(f => {
+      const nombre = f.nombre || f.Nombre || f.NOMBRE || f["Nombre completo"] || "";
+      const edad   = f.edad   || f.Edad   || f.EDAD   || "";
+      const contacto = f.contacto_emergencia || f.contacto || f.Contacto || f["Contacto emergencia"] || "";
+      return { nombre: String(nombre).trim(), edad: edad ? parseInt(edad) : null, contacto_emergencia: String(contacto).trim() };
+    }).filter(f => f.nombre !== "");
+
+    mostrarPreview(datosImport);
+  };
+  reader.readAsArrayBuffer(file);
+  document.getElementById("input-excel").value = "";
+}
+
+function mostrarPreview(lista) {
+  document.getElementById("preview-section").style.display = "block";
+  document.getElementById("preview-count").textContent = lista.length;
+  document.getElementById("import-result").innerHTML = "";
+
+  const tbody = document.getElementById("tabla-preview");
+  tbody.innerHTML = "";
+  lista.forEach((e, i) => {
+    const valido = e.nombre ? "" : "⚠️ Sin nombre";
+    tbody.innerHTML += `<tr>
+      <td>${i + 1}</td>
+      <td class="td-name">${e.nombre || "—"}</td>
+      <td>${e.edad ?? "—"}</td>
+      <td>${e.contacto_emergencia || "—"}</td>
+      <td>${valido ? `<span class="badge badge-red">${valido}</span>` : '<span class="badge badge-green">✓ OK</span>'}</td>
+    </tr>`;
+  });
+}
+
+function cancelarImport() {
+  datosImport = [];
+  document.getElementById("preview-section").style.display = "none";
+  document.getElementById("import-result").innerHTML = "";
+}
+
+async function importarEstudiantes() {
+  if (!datosImport.length) return;
+  const resultado = document.getElementById("import-result");
+  resultado.innerHTML = "⏳ Importando...";
+
+  let ok = 0, err = 0;
+  for (const est of datosImport) {
+    if (!est.nombre) { err++; continue; }
+    try {
+      const res = await fetch(API + "/estudiantes", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre: est.nombre, edad: est.edad, id_curso: cursoActivo, contacto_emergencia: est.contacto_emergencia || null })
+      });
+      if (res.ok) ok++; else err++;
+    } catch { err++; }
+  }
+
+  resultado.innerHTML = `
+    <span class="ok">✅ ${ok} estudiante(s) importados correctamente</span>
+    ${err > 0 ? `&nbsp;&nbsp;<span class="err">❌ ${err} con error</span>` : ""}
+  `;
+
+  datosImport = [];
+  setTimeout(() => {
+    document.getElementById("preview-section").style.display = "none";
+    cargarEstudiantes();
+  }, 2000);
+}
+
+// ── PLANTILLA ──
+function descargarPlantilla() {
+  const ws = XLSX.utils.aoa_to_sheet([
+    ["nombre", "edad", "contacto_emergencia"],
+    ["Juan Pérez", 15, "María Pérez - 809-555-1234"],
+    ["Ana García", 16, "Carlos García - 809-555-5678"],
+  ]);
+  ws["!cols"] = [{ wch: 30 }, { wch: 8 }, { wch: 35 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Estudiantes");
+  XLSX.writeFile(wb, "plantilla_estudiantes.xlsx");
 }
 
 cargarCursos();
