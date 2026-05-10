@@ -1,5 +1,6 @@
-const express = require("express");
-const cors = require("cors");
+const express        = require("express");
+const cors           = require("cors");
+const verificarToken = require("./middleware/auth");
 
 require("./config/db");
 
@@ -7,32 +8,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const authRoutes = require("./routes/authRoutes");
-app.use("/api", authRoutes);
+// Ruta pública — solo login
+app.use("/api", require("./routes/authRoutes"));
 
-const estudiantesRoutes = require("./routes/estudiantesRoutes");
-app.use("/api", estudiantesRoutes);
-
-const atencionesRoutes = require("./routes/atencionesRoutes");
-app.use("/api", atencionesRoutes);
-
-const alertasRoutes = require("./routes/alertasRoutes");
-app.use("/api", alertasRoutes);
-
-const medicamentosRoutes = require("./routes/medicamentosRoutes");
-app.use("/api", medicamentosRoutes);
-
-const reportesRoutes = require("./routes/reportesRoutes");
-app.use("/api", reportesRoutes);
-
-const cursosRoutes = require("./routes/cursosRoutes");
-app.use("/api", cursosRoutes);
+// Rutas protegidas — requieren token JWT
+app.use("/api", verificarToken, require("./routes/estudiantesRoutes"));
+app.use("/api", verificarToken, require("./routes/atencionesRoutes"));
+app.use("/api", verificarToken, require("./routes/alertasRoutes"));
+app.use("/api", verificarToken, require("./routes/medicamentosRoutes"));
+app.use("/api", verificarToken, require("./routes/reportesRoutes"));
+app.use("/api", verificarToken, require("./routes/cursosRoutes"));
 
 app.get("/", (req, res) => {
-  res.send("API Enfermería funcionando");
+  res.send("✅ API Enfermería funcionando");
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("Servidor corriendo en puerto " + PORT);
+  console.log("🚀 Servidor corriendo en puerto " + PORT);
 });
