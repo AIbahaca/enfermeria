@@ -5,7 +5,19 @@ const verificarToken = require("./middleware/auth");
 require("./config/db");
 
 const app = express();
-app.use(cors());
+
+// Permitir peticiones desde GitHub Pages y localhost
+app.use(cors({
+  origin: [
+    "https://aibahaca.github.io",
+    "http://localhost:3000",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(express.json());
 
 // Ruta pública — solo login
