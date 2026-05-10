@@ -1,77 +1,135 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Atenciones</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atenciones — Enfermería</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Style.css">
 </head>
 <body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏥</div>
+      <div class="sidebar-brand"><h2>SaludEscolar</h2><span>Enfermería Digital</span></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">👩‍⚕️</div>
+      <div class="sidebar-user-info"><div class="name">Enfermera</div><span class="role-badge">Sistema</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-icon">📊</span> Dashboard</div>
+        <div class="nav-item active" onclick="location.href='atenciones.html'"><span class="nav-icon">🩺</span> Atenciones</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Gestión</div>
+        <div class="nav-item" onclick="location.href='estudiantes.html'"><span class="nav-icon">🎓</span> Estudiantes</div>
+        <div class="nav-item" onclick="location.href='alertas.html'"><span class="nav-icon">⚠️</span> Alertas</div>
+        <div class="nav-item" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Informes</div>
+        <div class="nav-item" onclick="location.href='reportes.html'"><span class="nav-icon">📋</span> Reportes</div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary btn-full" onclick="logout()">🚪 Cerrar Sesión</button>
+    </div>
+  </aside>
 
-<h2>Registrar Atención</h2>
-<button onclick="window.location.href='dashboard.html'">← Volver</button>
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title">Registrar Atención</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-notif" onclick="location.href='alertas.html'">🔔</div>
+      </div>
+    </div>
 
-<br><br>
+    <div class="page-content">
+      <div class="page-header-inner">
+        <div>
+          <h2 class="page-title">Registrar Nueva Atención</h2>
+          <p class="page-subtitle">Complete los campos para guardar la atención médica</p>
+        </div>
+      </div>
 
-<label>Curso:</label>
-<select id="select-curso" onchange="cargarEstudiantes()">
-  <option value="">-- Selecciona un curso --</option>
-</select>
+      <div class="card">
+        <div class="card-header-row">
+          <div class="card-title">📋 Formulario de Atención</div>
+          <span class="badge badge-teal">* campos obligatorios</span>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label>Curso *</label>
+            <select class="form-control" id="select-curso" onchange="cargarEstudiantes()">
+              <option value="">-- Selecciona un curso --</option>
+            </select>
+          </div>
+          <div>
+            <label>Estudiante *</label>
+            <select class="form-control" id="select-estudiante">
+              <option value="">-- Selecciona un estudiante --</option>
+            </select>
+          </div>
+          <div>
+            <label>Fecha *</label>
+            <input class="form-control" type="date" id="fecha">
+          </div>
+          <div>
+            <label>Hora</label>
+            <input class="form-control" type="time" id="hora">
+          </div>
+          <div>
+            <label>Síntomas</label>
+            <input class="form-control" type="text" id="sintomas" placeholder="Síntomas presentados">
+          </div>
+          <div>
+            <label>Diagnóstico</label>
+            <input class="form-control" type="text" id="diagnostico" placeholder="Diagnóstico realizado">
+          </div>
+          <div style="grid-column:1/-1">
+            <label>Acción tomada</label>
+            <input class="form-control" type="text" id="accion" placeholder="Acción realizada">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="registrar()">💾 Guardar atención</button>
+        <p id="msg"></p>
+      </div>
 
-<label>Estudiante:</label>
-<select id="select-estudiante">
-  <option value="">-- Selecciona un estudiante --</option>
-</select>
-
-<br><br>
-
-<label>Fecha: *</label>
-<input type="date" id="fecha">
-
-<label>Hora:</label>
-<input type="time" id="hora">
-
-<label>Síntomas:</label>
-<input type="text" id="sintomas" placeholder="Síntomas presentados">
-
-<label>Diagnóstico:</label>
-<input type="text" id="diagnostico" placeholder="Diagnóstico realizado">
-
-<label>Acción tomada:</label>
-<input type="text" id="accion" placeholder="Acción realizada">
-
-<br><br>
-<button onclick="registrar()">Guardar atención</button>
-<p id="msg"></p>
-
-<hr>
-
-<h3>Atenciones registradas</h3>
-<table border="1">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Estudiante</th>
-      <th>Curso</th>
-      <th>Fecha</th>
-      <th>Hora</th>
-      <th>Síntomas</th>
-      <th>Diagnóstico</th>
-      <th>Acción</th>
-      <th>Eliminar</th>
-    </tr>
-  </thead>
-  <tbody id="tabla-atenciones"></tbody>
-</table>
+      <div class="card">
+        <div class="card-header-row">
+          <div class="card-title">Atenciones Registradas</div>
+          <span class="badge badge-teal" id="count-ate">0 registros</span>
+        </div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Estudiante</th><th>Curso</th><th>Fecha</th><th>Hora</th><th>Síntomas</th><th>Diagnóstico</th><th>Acción</th><th></th></tr>
+            </thead>
+            <tbody id="tabla-atenciones"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 <script>
+function logout(){ localStorage.removeItem("user"); location.href="login.html"; }
+function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 
 async function cargarCursos() {
-  const res  = await fetch(API + "/cursos");
+  const res = await fetch(API + "/cursos");
   const data = await res.json();
-  const sel  = document.getElementById("select-curso");
-  data.forEach(c => {
-    sel.innerHTML += `<option value="${c.id_curso}">${c.nombre} (${c.anio})</option>`;
-  });
+  const sel = document.getElementById("select-curso");
+  data.forEach(c => { sel.innerHTML += `<option value="${c.id_curso}">${c.nombre} (${c.anio})</option>`; });
 }
 
 async function cargarEstudiantes() {
@@ -79,68 +137,59 @@ async function cargarEstudiantes() {
   const sel = document.getElementById("select-estudiante");
   sel.innerHTML = "<option value=''>-- Selecciona un estudiante --</option>";
   if (!id_curso) return;
-
-  const res  = await fetch(API + "/estudiantes?id_curso=" + id_curso);
+  const res = await fetch(API + "/estudiantes?id_curso=" + id_curso);
   const data = await res.json();
-  data.forEach(e => {
-    sel.innerHTML += `<option value="${e.id_estudiante}">${e.nombre} ${e.apellido || ""}</option>`;
-  });
+  data.forEach(e => { sel.innerHTML += `<option value="${e.id_estudiante}">${e.nombre} ${e.apellido || ""}</option>`; });
 }
 
 async function cargarAtenciones() {
-  const res  = await fetch(API + "/atenciones");
+  const res = await fetch(API + "/atenciones");
   const data = await res.json();
   const tbody = document.getElementById("tabla-atenciones");
-  tbody.innerHTML = "";
+  document.getElementById("count-ate").textContent = data.length + " registros";
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9">Sin atenciones registradas.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📭</div><p>Sin atenciones registradas</p></div></td></tr>';
     return;
   }
+  tbody.innerHTML = "";
   data.forEach((a, i) => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${a.nombre_estudiante}</td>
-        <td>${a.nombre_curso || "—"}</td>
-        <td>${a.fecha || "—"}</td>
-        <td>${a.hora || "—"}</td>
-        <td>${a.sintomas || "—"}</td>
-        <td>${a.diagnostico || "—"}</td>
-        <td>${a.accion || "—"}</td>
-        <td><button onclick="eliminar(${a.id_atencion})">Eliminar</button></td>
-      </tr>`;
+    tbody.innerHTML += `<tr>
+      <td>${i + 1}</td>
+      <td class="td-name">${a.nombre_estudiante}</td>
+      <td>${a.nombre_curso || "—"}</td>
+      <td>${a.fecha || "—"}</td>
+      <td>${a.hora || "—"}</td>
+      <td>${a.sintomas || "—"}</td>
+      <td>${a.diagnostico || "—"}</td>
+      <td>${a.accion || "—"}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="eliminar(${a.id_atencion})">🗑️</button></td>
+    </tr>`;
   });
 }
 
 async function registrar() {
   const msg = document.getElementById("msg");
   const id_estudiante = document.getElementById("select-estudiante").value;
-  const fecha         = document.getElementById("fecha").value;
-  const hora          = document.getElementById("hora").value;
-  const sintomas      = document.getElementById("sintomas").value;
-  const diagnostico   = document.getElementById("diagnostico").value;
-  const accion        = document.getElementById("accion").value;
+  const fecha = document.getElementById("fecha").value;
+  const hora = document.getElementById("hora").value;
+  const sintomas = document.getElementById("sintomas").value;
+  const diagnostico = document.getElementById("diagnostico").value;
+  const accion = document.getElementById("accion").value;
 
-  if (!id_estudiante || !fecha) {
-    msg.textContent = "Selecciona un estudiante y una fecha.";
-    return;
-  }
+  if (!id_estudiante || !fecha) { msg.textContent = "Selecciona un estudiante y una fecha."; return; }
 
   const res = await fetch(API + "/atenciones", {
-    method:  "POST",
-    headers: { "Content-Type": "application/json" },
+    method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id_estudiante, fecha, hora, sintomas, diagnostico, accion })
   });
-
   const data = await res.json();
   msg.textContent = res.ok ? "✅ " + data.mensaje : "❌ " + data.mensaje;
-
   if (res.ok) {
-    document.getElementById("fecha").value      = "";
-    document.getElementById("hora").value       = "";
-    document.getElementById("sintomas").value   = "";
+    document.getElementById("fecha").value = "";
+    document.getElementById("hora").value = "";
+    document.getElementById("sintomas").value = "";
     document.getElementById("diagnostico").value = "";
-    document.getElementById("accion").value     = "";
+    document.getElementById("accion").value = "";
     cargarAtenciones();
   }
 }
@@ -153,7 +202,6 @@ async function eliminar(id) {
 
 cargarCursos();
 cargarAtenciones();
-
 </script>
 </body>
 </html>

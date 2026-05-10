@@ -1,33 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Enfermería</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Style.css">
 </head>
 <body>
+<div class="app-shell">
 
-<h2>Dashboard</h2>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏥</div>
+      <div class="sidebar-brand"><h2>SaludEscolar</h2><span>Enfermería Digital</span></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">👩‍⚕️</div>
+      <div class="sidebar-user-info"><div class="name">Enfermera</div><span class="role-badge">Sistema</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item active" onclick="location.href='dashboard.html'"><span class="nav-icon">📊</span> Dashboard</div>
+        <div class="nav-item" onclick="location.href='atenciones.html'"><span class="nav-icon">🩺</span> Atenciones</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Gestión</div>
+        <div class="nav-item" onclick="location.href='estudiantes.html'"><span class="nav-icon">🎓</span> Estudiantes</div>
+        <div class="nav-item" onclick="location.href='alertas.html'"><span class="nav-icon">⚠️</span> Alertas</div>
+        <div class="nav-item" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Informes</div>
+        <div class="nav-item" onclick="location.href='reportes.html'"><span class="nav-icon">📋</span> Reportes</div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary btn-full" onclick="logout()">🚪 Cerrar Sesión</button>
+    </div>
+  </aside>
 
-<button onclick="window.location.href='dashboard.html'">Volver</button>
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title">Dashboard General</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-notif" onclick="location.href='alertas.html'" title="Alertas">🔔</div>
+      </div>
+    </div>
 
-<button onclick="ir('estudiantes.html')">Estudiantes</button>
-<button onclick="ir('atenciones.html')">Atenciones</button>
-<button onclick="ir('alertas.html')">Alertas</button>
-<button onclick="ir('medicamentos.html')">Medicamentos</button>
-<button onclick="ir('reportes.html')">Reportes</button>
+    <div class="page-content">
+      <div class="page-header-inner">
+        <div>
+          <h2 class="page-title">Dashboard General</h2>
+          <p class="page-subtitle">Resumen de actividad de la enfermería escolar</p>
+        </div>
+        <button class="btn btn-primary" onclick="ir('atenciones.html')">➕ Nueva Atención</button>
+      </div>
 
-<button onclick="logout()">Salir</button>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon teal">🎓</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-estudiantes">—</div>
+            <div class="stat-label">Estudiantes registrados</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">🩺</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-atenciones">—</div>
+            <div class="stat-label">Atenciones totales</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon amber">⚠️</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-alertas">—</div>
+            <div class="stat-label">Alertas activas</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">💊</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-medicamentos">—</div>
+            <div class="stat-label">Medicamentos en stock</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modules-grid">
+        <div class="module-card" onclick="ir('atenciones.html')">
+          <div class="module-icon">🩺</div>
+          <div class="module-info">
+            <div class="module-title">Atenciones</div>
+            <div class="module-desc">Registrar y consultar atenciones médicas</div>
+          </div>
+          <span class="module-arrow">→</span>
+        </div>
+        <div class="module-card" onclick="ir('estudiantes.html')">
+          <div class="module-icon">🎓</div>
+          <div class="module-info">
+            <div class="module-title">Estudiantes</div>
+            <div class="module-desc">Gestión de fichas de estudiantes</div>
+          </div>
+          <span class="module-arrow">→</span>
+        </div>
+        <div class="module-card" onclick="ir('alertas.html')">
+          <div class="module-icon">🔔</div>
+          <div class="module-info">
+            <div class="module-title">Alertas</div>
+            <div class="module-desc">Estudiantes con visitas repetitivas</div>
+          </div>
+          <span class="module-arrow">→</span>
+        </div>
+        <div class="module-card" onclick="ir('medicamentos.html')">
+          <div class="module-icon">💊</div>
+          <div class="module-info">
+            <div class="module-title">Medicamentos</div>
+            <div class="module-desc">Inventario y stock de medicamentos</div>
+          </div>
+          <span class="module-arrow">→</span>
+        </div>
+        <div class="module-card" onclick="ir('reportes.html')">
+          <div class="module-icon">📋</div>
+          <div class="module-info">
+            <div class="module-title">Reportes</div>
+            <div class="module-desc">Generar reportes por estudiante</div>
+          </div>
+          <span class="module-arrow">→</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 <script>
-function ir(pagina){
-  window.location.href = pagina;
-}
+function ir(pagina){ window.location.href = pagina; }
+function logout(){ localStorage.removeItem("user"); window.location.href = "login.html"; }
+function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 
-function logout(){
-  localStorage.removeItem("user");
-  window.location.href = "login.html";
+async function cargarStats() {
+  try {
+    const [est, ate, ale, med] = await Promise.all([
+      fetch(API + "/estudiantes").then(r=>r.json()),
+      fetch(API + "/atenciones").then(r=>r.json()),
+      fetch(API + "/alertas").then(r=>r.json()),
+      fetch(API + "/medicamentos").then(r=>r.json()),
+    ]);
+    document.getElementById("stat-estudiantes").textContent = est.length;
+    document.getElementById("stat-atenciones").textContent = ate.length;
+    document.getElementById("stat-alertas").textContent = ale.length;
+    document.getElementById("stat-medicamentos").textContent = med.length;
+  } catch(e) { console.error(e); }
 }
+cargarStats();
 </script>
-
 </body>
 </html>

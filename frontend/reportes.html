@@ -1,39 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Reportes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes — Enfermería</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Style.css">
 </head>
 <body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏥</div>
+      <div class="sidebar-brand"><h2>SaludEscolar</h2><span>Enfermería Digital</span></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">👩‍⚕️</div>
+      <div class="sidebar-user-info"><div class="name">Enfermera</div><span class="role-badge">Sistema</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-icon">📊</span> Dashboard</div>
+        <div class="nav-item" onclick="location.href='atenciones.html'"><span class="nav-icon">🩺</span> Atenciones</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Gestión</div>
+        <div class="nav-item" onclick="location.href='estudiantes.html'"><span class="nav-icon">🎓</span> Estudiantes</div>
+        <div class="nav-item" onclick="location.href='alertas.html'"><span class="nav-icon">⚠️</span> Alertas</div>
+        <div class="nav-item" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Informes</div>
+        <div class="nav-item active" onclick="location.href='reportes.html'"><span class="nav-icon">📋</span> Reportes</div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary btn-full" onclick="logout()">🚪 Cerrar Sesión</button>
+    </div>
+  </aside>
 
-<h2>Reportes</h2>
-<button onclick="window.location.href='dashboard.html'">← Volver</button>
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title">Reportes</div>
+      </div>
+    </div>
 
-<br><br>
+    <div class="page-content">
+      <div class="page-header-inner">
+        <div>
+          <h2 class="page-title">Reportes por Estudiante</h2>
+          <p class="page-subtitle">Genera el historial clínico individual de cada estudiante</p>
+        </div>
+      </div>
 
-<label>Estudiante (con al menos 1 atención):</label>
-<select id="select-estudiante">
-  <option value="">-- Selecciona un estudiante --</option>
-</select>
-<button onclick="generarReporte()">Ver reporte</button>
+      <div class="card">
+        <div class="card-header-row">
+          <div class="card-title">Generar Reporte</div>
+        </div>
+        <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+          <div style="flex:1;min-width:250px;">
+            <label>Estudiante (con al menos 1 atención)</label>
+            <select class="form-control" id="select-estudiante">
+              <option value="">-- Selecciona un estudiante --</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="generarReporte()">📄 Ver reporte</button>
+        </div>
+      </div>
 
-<br><br>
-
-<div id="reporte"></div>
+      <div id="reporte"></div>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 <script>
+function logout(){ localStorage.removeItem("user"); location.href="login.html"; }
+function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 
 async function cargarEstudiantes() {
-  const res  = await fetch(API + "/reportes/estudiantes");
+  const res = await fetch(API + "/reportes/estudiantes");
   const data = await res.json();
-  const sel  = document.getElementById("select-estudiante");
-
+  const sel = document.getElementById("select-estudiante");
   if (data.length === 0) {
     sel.innerHTML = "<option disabled>Sin estudiantes con atenciones registradas</option>";
     return;
   }
-
   data.forEach(e => {
     sel.innerHTML += `<option value="${e.id_estudiante}">${e.nombre_completo} — ${e.nombre_curso || "Sin curso"}</option>`;
   });
@@ -43,17 +98,17 @@ async function generarReporte() {
   const id = document.getElementById("select-estudiante").value;
   if (!id) { alert("Selecciona un estudiante."); return; }
 
-  const res  = await fetch(API + "/reportes/estudiante/" + id);
+  const res = await fetch(API + "/reportes/estudiante/" + id);
   const data = await res.json();
-  const div  = document.getElementById("reporte");
+  const div = document.getElementById("reporte");
 
   if (data.length === 0) {
-    div.innerHTML = "<p>Sin atenciones registradas para este estudiante.</p>";
+    div.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">📭</div><p>Sin atenciones registradas para este estudiante.</p></div></div>';
     return;
   }
 
-  const estudiante  = data[0].nombre_estudiante;
-  const curso       = data[0].nombre_curso || "—";
+  const estudiante = data[0].nombre_estudiante;
+  const curso = data[0].nombre_curso || "—";
 
   let filas = data.map((a, i) => `
     <tr>
@@ -63,32 +118,41 @@ async function generarReporte() {
       <td>${a.sintomas || "—"}</td>
       <td>${a.diagnostico || "—"}</td>
       <td>${a.accion || "—"}</td>
-    </tr>
-  `).join("");
+    </tr>`).join("");
 
   div.innerHTML = `
-    <h3>Reporte de: ${estudiante}</h3>
-    <p>Curso: ${curso} &nbsp;|&nbsp; Total de atenciones: ${data.length}</p>
-    <table border="1">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Fecha</th>
-          <th>Hora</th>
-          <th>Síntomas</th>
-          <th>Diagnóstico</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>${filas}</tbody>
-    </table>
-    <br>
-    <button onclick="window.print()">🖨️ Imprimir</button>
-  `;
+    <div class="report-preview">
+      <div class="report-header">
+        <div class="report-logo">🏥</div>
+        <div>
+          <h3>Reporte Individual — Enfermería Escolar</h3>
+          <p>Generado el ${new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}</p>
+        </div>
+      </div>
+      <div class="report-body">
+        <div class="report-section">
+          <h4>Datos del Estudiante</h4>
+          <div class="report-row"><strong>Nombre completo</strong><span>${estudiante}</span></div>
+          <div class="report-row"><strong>Curso</strong><span>${curso}</span></div>
+          <div class="report-row"><strong>Total de atenciones</strong><span>${data.length}</span></div>
+        </div>
+        <div class="report-section">
+          <h4>Registro de Atenciones</h4>
+          <div class="tabla-wrapper">
+            <table>
+              <thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Síntomas</th><th>Diagnóstico</th><th>Acción</th></tr></thead>
+              <tbody>${filas}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <button class="btn btn-secondary" onclick="window.print()">🖨️ Imprimir / Exportar PDF</button>
+    </div>`;
 }
 
 cargarEstudiantes();
-
 </script>
 </body>
 </html>

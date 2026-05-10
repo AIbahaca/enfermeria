@@ -1,97 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Medicamentos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medicamentos — Enfermería</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Style.css">
 </head>
 <body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏥</div>
+      <div class="sidebar-brand"><h2>SaludEscolar</h2><span>Enfermería Digital</span></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">👩‍⚕️</div>
+      <div class="sidebar-user-info"><div class="name">Enfermera</div><span class="role-badge">Sistema</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-icon">📊</span> Dashboard</div>
+        <div class="nav-item" onclick="location.href='atenciones.html'"><span class="nav-icon">🩺</span> Atenciones</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Gestión</div>
+        <div class="nav-item" onclick="location.href='estudiantes.html'"><span class="nav-icon">🎓</span> Estudiantes</div>
+        <div class="nav-item" onclick="location.href='alertas.html'"><span class="nav-icon">⚠️</span> Alertas</div>
+        <div class="nav-item active" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Informes</div>
+        <div class="nav-item" onclick="location.href='reportes.html'"><span class="nav-icon">📋</span> Reportes</div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary btn-full" onclick="logout()">🚪 Cerrar Sesión</button>
+    </div>
+  </aside>
 
-<h2>Medicamentos</h2>
-<button onclick="window.location.href='dashboard.html'">← Volver</button>
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title">Medicamentos</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-notif" onclick="location.href='alertas.html'">🔔</div>
+      </div>
+    </div>
 
-<br><br>
+    <div class="page-content">
+      <div class="page-header-inner">
+        <div>
+          <h2 class="page-title">Inventario de Medicamentos</h2>
+          <p class="page-subtitle">Gestión del stock de medicamentos disponibles</p>
+        </div>
+      </div>
 
-<label>Nombre: *</label>
-<input type="text" id="nombre" placeholder="Nombre del medicamento">
+      <div class="card">
+        <div class="card-header-row">
+          <div class="card-title">Agregar Medicamento</div>
+        </div>
+        <div class="form-grid">
+          <div><label>Nombre *</label><input class="form-control" type="text" id="nombre" placeholder="Nombre del medicamento"></div>
+          <div><label>Uso</label><input class="form-control" type="text" id="uso" placeholder="Para qué se usa"></div>
+          <div><label>Tipo</label><input class="form-control" type="text" id="tipo" placeholder="Tipo de medicamento"></div>
+          <div><label>Stock</label><input class="form-control" type="number" id="stock" placeholder="Cantidad disponible" min="0"></div>
+        </div>
+        <button class="btn btn-primary" onclick="crear()">➕ Agregar medicamento</button>
+        <p id="msg"></p>
+      </div>
 
-<label>Uso:</label>
-<input type="text" id="uso" placeholder="Para qué se usa">
-
-<label>Tipo:</label>
-<input type="text" id="tipo" placeholder="Tipo de medicamento">
-
-<label>Stock:</label>
-<input type="number" id="stock" placeholder="Cantidad disponible" min="0">
-
-<button onclick="crear()">Agregar</button>
-<p id="msg"></p>
-
-<hr>
-
-<table border="1">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Nombre</th>
-      <th>Uso</th>
-      <th>Tipo</th>
-      <th>Stock</th>
-      <th>Eliminar</th>
-    </tr>
-  </thead>
-  <tbody id="tabla-medicamentos"></tbody>
-</table>
+      <div class="card">
+        <div class="card-header-row">
+          <div class="card-title">Inventario</div>
+          <span class="badge badge-teal" id="count-med">0 medicamentos</span>
+        </div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Nombre</th><th>Uso</th><th>Tipo</th><th>Stock</th><th>Acción</th></tr>
+            </thead>
+            <tbody id="tabla-medicamentos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 <script>
+function logout(){ localStorage.removeItem("user"); location.href="login.html"; }
+function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 
 async function cargar() {
-  const res  = await fetch(API + "/medicamentos");
+  const res = await fetch(API + "/medicamentos");
   const data = await res.json();
   const tbody = document.getElementById("tabla-medicamentos");
-  tbody.innerHTML = "";
-
+  document.getElementById("count-med").textContent = data.length + " medicamentos";
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6">Sin medicamentos registrados.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💊</div><p>Sin medicamentos registrados</p></div></td></tr>';
     return;
   }
-
+  tbody.innerHTML = "";
   data.forEach((m, i) => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${m.nombre}</td>
-        <td>${m.uso || "—"}</td>
-        <td>${m.tipo || "—"}</td>
-        <td>${m.stock ?? "—"}</td>
-        <td><button onclick="eliminar(${m.id_medicamento})">Eliminar</button></td>
-      </tr>`;
+    const bajo = m.stock !== null && m.stock < 5;
+    tbody.innerHTML += `<tr>
+      <td>${i + 1}</td>
+      <td class="td-name">${m.nombre}</td>
+      <td>${m.uso || "—"}</td>
+      <td>${m.tipo ? `<span class="badge badge-teal">${m.tipo}</span>` : "—"}</td>
+      <td>${bajo ? `<span class="badge badge-red">⚠️ ${m.stock}</span>` : (m.stock ?? "—")}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="eliminar(${m.id_medicamento})">🗑️ Eliminar</button></td>
+    </tr>`;
   });
 }
 
 async function crear() {
-  const msg   = document.getElementById("msg");
+  const msg = document.getElementById("msg");
   const nombre = document.getElementById("nombre").value.trim();
-  const uso    = document.getElementById("uso").value.trim();
-  const tipo   = document.getElementById("tipo").value.trim();
-  const stock  = document.getElementById("stock").value;
-
-  if (!nombre) { msg.textContent = "El nombre es obligatorio."; return; }
+  const uso = document.getElementById("uso").value.trim();
+  const tipo = document.getElementById("tipo").value.trim();
+  const stock = document.getElementById("stock").value;
+  if (!nombre) { msg.textContent = "❌ El nombre es obligatorio."; return; }
 
   const res = await fetch(API + "/medicamentos", {
-    method:  "POST",
-    headers: { "Content-Type": "application/json" },
+    method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nombre, uso, tipo, stock: stock ? parseInt(stock) : null })
   });
-
   const data = await res.json();
   msg.textContent = res.ok ? "✅ " + data.mensaje : "❌ " + data.mensaje;
-
   if (res.ok) {
     document.getElementById("nombre").value = "";
-    document.getElementById("uso").value    = "";
-    document.getElementById("tipo").value   = "";
-    document.getElementById("stock").value  = "";
+    document.getElementById("uso").value = "";
+    document.getElementById("tipo").value = "";
+    document.getElementById("stock").value = "";
     cargar();
   }
 }
@@ -103,7 +149,6 @@ async function eliminar(id) {
 }
 
 cargar();
-
 </script>
 </body>
 </html>

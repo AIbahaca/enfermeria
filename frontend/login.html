@@ -1,19 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <title>Login — Enfermería</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Style.css">
 </head>
-<body>
-  <h2>Login</h2>
+<body class="login-page">
 
-<input type="text" id="usuario" placeholder="Usuario"><br><br>
-<input type="password" id="contraseña" placeholder="Contraseña"><br><br>
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">🏥</div>
+      <div class="login-logo-text">
+        <h1>SaludEscolar</h1>
+        <span>Gestión de Enfermería</span>
+      </div>
+    </div>
+    <h2>Bienvenido/a</h2>
+    <p>Ingresa tus credenciales para acceder al sistema</p>
 
-<button onclick="login()">Ingresar</button>
+    <div class="form-group">
+      <label>Usuario</label>
+      <input class="form-control" type="text" id="usuario" placeholder="nombre.usuario" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input class="form-control" type="password" id="contraseña" placeholder="••••••••" autocomplete="current-password">
+    </div>
 
-<p id="msg"></p>
+    <button class="btn btn-primary btn-full" onclick="login()">Iniciar Sesión</button>
+    <p id="msg"></p>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>

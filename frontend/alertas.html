@@ -1,58 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Alertas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alertas — Enfermería</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Style.css">
 </head>
 <body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏥</div>
+      <div class="sidebar-brand"><h2>SaludEscolar</h2><span>Enfermería Digital</span></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">👩‍⚕️</div>
+      <div class="sidebar-user-info"><div class="name">Enfermera</div><span class="role-badge">Sistema</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-icon">📊</span> Dashboard</div>
+        <div class="nav-item" onclick="location.href='atenciones.html'"><span class="nav-icon">🩺</span> Atenciones</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Gestión</div>
+        <div class="nav-item" onclick="location.href='estudiantes.html'"><span class="nav-icon">🎓</span> Estudiantes</div>
+        <div class="nav-item active" onclick="location.href='alertas.html'"><span class="nav-icon">⚠️</span> Alertas</div>
+        <div class="nav-item" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Informes</div>
+        <div class="nav-item" onclick="location.href='reportes.html'"><span class="nav-icon">📋</span> Reportes</div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary btn-full" onclick="logout()">🚪 Cerrar Sesión</button>
+    </div>
+  </aside>
 
-<h2>Alertas</h2>
-<button onclick="window.location.href='dashboard.html'">← Volver</button>
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title">Centro de Alertas</div>
+      </div>
+    </div>
 
-<p>Las alertas se generan automáticamente cuando un estudiante registra 3 o más atenciones en los últimos 7 días.</p>
+    <div class="page-content">
+      <div class="page-header-inner">
+        <div>
+          <h2 class="page-title">Centro de Alertas</h2>
+          <p class="page-subtitle">Estudiantes con visitas repetitivas en los últimos 7 días</p>
+        </div>
+      </div>
 
-<br>
+      <div class="alert-info-box">
+        ⚠️ Las alertas se generan automáticamente cuando un estudiante registra <strong>3 o más atenciones en los últimos 7 días</strong>.
+      </div>
 
-<table border="1">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Estudiante</th>
-      <th>Curso</th>
-      <th>Tipo</th>
-      <th>Descripción</th>
-      <th>Fecha</th>
-      <th>Acción</th>
-    </tr>
-  </thead>
-  <tbody id="tabla-alertas"></tbody>
-</table>
+      <div class="card">
+        <div class="card-header-row">
+          <div class="card-title">Alertas Activas</div>
+          <span class="badge badge-red" id="count-alertas">0 alertas</span>
+        </div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Estudiante</th><th>Curso</th><th>Tipo</th><th>Descripción</th><th>Fecha</th><th>Acción</th></tr>
+            </thead>
+            <tbody id="tabla-alertas"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 <script>
+function logout(){ localStorage.removeItem("user"); location.href="login.html"; }
+function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 
 async function cargarAlertas() {
-  const res  = await fetch(API + "/alertas");
+  const res = await fetch(API + "/alertas");
   const data = await res.json();
   const tbody = document.getElementById("tabla-alertas");
+  document.getElementById("count-alertas").textContent = data.length + " alertas";
   tbody.innerHTML = "";
 
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7">No hay alertas activas.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">✅</div><h3>Sin alertas activas</h3><p>No hay estudiantes con visitas repetitivas.</p></div></td></tr>';
     return;
   }
-
   data.forEach((a, i) => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${a.nombre_estudiante}</td>
-        <td>${a.nombre_curso || "—"}</td>
-        <td>${a.tipo || "—"}</td>
-        <td>${a.descripcion || "—"}</td>
-        <td>${a.fecha || "—"}</td>
-        <td><button onclick="eliminar(${a.id_alerta})">Descartar</button></td>
-      </tr>`;
+    tbody.innerHTML += `<tr>
+      <td>${i + 1}</td>
+      <td class="td-name">${a.nombre_estudiante}</td>
+      <td>${a.nombre_curso || "—"}</td>
+      <td><span class="badge badge-amber">${a.tipo || "—"}</span></td>
+      <td>${a.descripcion || "—"}</td>
+      <td>${a.fecha || "—"}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="eliminar(${a.id_alerta})">Descartar</button></td>
+    </tr>`;
   });
 }
 
@@ -63,7 +114,6 @@ async function eliminar(id) {
 }
 
 cargarAlertas();
-
 </script>
 </body>
 </html>

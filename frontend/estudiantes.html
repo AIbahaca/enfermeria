@@ -2,119 +2,167 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Estudiantes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estudiantes — Enfermería</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Style.css">
 </head>
 <body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏥</div>
+      <div class="sidebar-brand"><h2>SaludEscolar</h2><span>Enfermería Digital</span></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">👩‍⚕️</div>
+      <div class="sidebar-user-info"><div class="name">Enfermera</div><span class="role-badge">Sistema</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-icon">📊</span> Dashboard</div>
+        <div class="nav-item" onclick="location.href='atenciones.html'"><span class="nav-icon">🩺</span> Atenciones</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Gestión</div>
+        <div class="nav-item active" onclick="location.href='estudiantes.html'"><span class="nav-icon">🎓</span> Estudiantes</div>
+        <div class="nav-item" onclick="location.href='alertas.html'"><span class="nav-icon">⚠️</span> Alertas</div>
+        <div class="nav-item" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Informes</div>
+        <div class="nav-item" onclick="location.href='reportes.html'"><span class="nav-icon">📋</span> Reportes</div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary btn-full" onclick="logout()">🚪 Cerrar Sesión</button>
+    </div>
+  </aside>
 
-<button onclick="window.location.href='dashboard.html'">← Volver</button>
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title">Estudiantes por Curso</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-notif" onclick="location.href='alertas.html'">🔔</div>
+      </div>
+    </div>
 
-<h2>Estudiantes por Curso</h2>
+    <div class="page-content">
+      <div class="page-header-inner">
+        <div>
+          <h2 class="page-title">Estudiantes por Curso</h2>
+          <p class="page-subtitle">Selecciona un curso para ver y gestionar los estudiantes</p>
+        </div>
+      </div>
 
-<label>Curso:</label>
-<select id="select-curso">
-  <option value="">-- Selecciona un curso --</option>
-</select>
-<button onclick="cargarEstudiantes()">Ver estudiantes</button>
+      <div class="card">
+        <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <label>Curso</label>
+            <select class="form-control" id="select-curso">
+              <option value="">-- Selecciona un curso --</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="cargarEstudiantes()">Ver estudiantes</button>
+        </div>
+      </div>
 
-<div id="seccion-estudiantes" style="display:none">
+      <div id="seccion-estudiantes" style="display:none">
+        <div class="card">
+          <h3 id="titulo-curso"></h3>
+          <h4 style="margin-bottom:1rem;">Agregar estudiante</h4>
+          <div class="form-grid">
+            <div><label>Nombre *</label><input class="form-control" type="text" id="inp-nombre" placeholder="Nombre del estudiante"></div>
+            <div><label>Edad</label><input class="form-control" type="number" id="inp-edad" placeholder="Edad"></div>
+            <div><label>Contacto de emergencia</label><input class="form-control" type="text" id="inp-contacto" placeholder="Nombre y teléfono"></div>
+          </div>
+          <button class="btn btn-primary" onclick="agregarEstudiante()">💾 Guardar estudiante</button>
+          <p id="msg"></p>
+        </div>
 
-  <h3 id="titulo-curso"></h3>
-
-  <h4>Agregar estudiante</h4>
-  <input type="text"   id="inp-nombre"   placeholder="Nombre *">
-  <input type="number" id="inp-edad"     placeholder="Edad">
-  <input type="text"   id="inp-contacto" placeholder="Contacto emergencia">
-  <button onclick="agregarEstudiante()">Guardar</button>
-  <p id="msg"></p>
-
-  <h4>Listado</h4>
-  <table border="1">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Nombre</th>
-        <th>Edad</th>
-        <th>Contacto</th>
-        <th>Acción</th>
-      </tr>
-    </thead>
-    <tbody id="tabla-estudiantes"></tbody>
-  </table>
-
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Listado de Estudiantes</div>
+            <span class="badge badge-teal" id="count-est">0 estudiantes</span>
+          </div>
+          <div class="tabla-wrapper">
+            <table>
+              <thead>
+                <tr><th>#</th><th>Nombre</th><th>Edad</th><th>Contacto emergencia</th><th>Acción</th></tr>
+              </thead>
+              <tbody id="tabla-estudiantes"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="app.js"></script>
 <script>
+function logout(){ localStorage.removeItem("user"); location.href="login.html"; }
+function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 
 let cursoActivo = null;
 
 async function cargarCursos() {
-  const res  = await fetch(API + "/cursos");
+  const res = await fetch(API + "/cursos");
   const data = await res.json();
-  const sel  = document.getElementById("select-curso");
-  data.forEach(c => {
-    sel.innerHTML += `<option value="${c.id_curso}">${c.nombre} (${c.anio})</option>`;
-  });
+  const sel = document.getElementById("select-curso");
+  data.forEach(c => { sel.innerHTML += `<option value="${c.id_curso}">${c.nombre} (${c.anio})</option>`; });
 }
 
 async function cargarEstudiantes() {
   const sel = document.getElementById("select-curso");
   const id_curso = sel.value;
   if (!id_curso) return alert("Selecciona un curso.");
-
   cursoActivo = id_curso;
-  document.getElementById("titulo-curso").textContent =
-    sel.options[sel.selectedIndex].text;
+  document.getElementById("titulo-curso").textContent = sel.options[sel.selectedIndex].text;
   document.getElementById("seccion-estudiantes").style.display = "block";
   document.getElementById("msg").textContent = "";
 
-  const res  = await fetch(API + "/estudiantes?id_curso=" + id_curso);
+  const res = await fetch(API + "/estudiantes?id_curso=" + id_curso);
   const data = await res.json();
   const tbody = document.getElementById("tabla-estudiantes");
+  document.getElementById("count-est").textContent = data.length + " estudiantes";
 
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5">Sin estudiantes en este curso.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🎓</div><p>Sin estudiantes en este curso</p></div></td></tr>';
     return;
   }
-
   tbody.innerHTML = "";
   data.forEach((e, i) => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${e.nombre}</td>
-        <td>${e.edad ?? "—"}</td>
-        <td>${e.contacto_emergencia ?? "—"}</td>
-        <td><button onclick="eliminar(${e.id_estudiante})">Eliminar</button></td>
-      </tr>`;
+    tbody.innerHTML += `<tr>
+      <td>${i + 1}</td>
+      <td class="td-name">${e.nombre}</td>
+      <td>${e.edad ?? "—"}</td>
+      <td>${e.contacto_emergencia ?? "—"}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="eliminar(${e.id_estudiante})">🗑️ Eliminar</button></td>
+    </tr>`;
   });
 }
 
 async function agregarEstudiante() {
   const msg = document.getElementById("msg");
-  const nombre   = document.getElementById("inp-nombre").value.trim();
-  const edad     = document.getElementById("inp-edad").value;
+  const nombre = document.getElementById("inp-nombre").value.trim();
+  const edad = document.getElementById("inp-edad").value;
   const contacto = document.getElementById("inp-contacto").value.trim();
-
-  if (!nombre) { msg.textContent = "El nombre es obligatorio."; return; }
+  if (!nombre) { msg.textContent = "❌ El nombre es obligatorio."; return; }
 
   const res = await fetch(API + "/estudiantes", {
-    method:  "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      nombre,
-      edad:                edad ? parseInt(edad) : null,
-      id_curso:            cursoActivo,
-      contacto_emergencia: contacto || null
-    })
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre, edad: edad ? parseInt(edad) : null, id_curso: cursoActivo, contacto_emergencia: contacto || null })
   });
-
   const data = await res.json();
   msg.textContent = res.ok ? "✅ " + data.mensaje : "❌ " + data.mensaje;
-
   if (res.ok) {
-    document.getElementById("inp-nombre").value   = "";
-    document.getElementById("inp-edad").value     = "";
+    document.getElementById("inp-nombre").value = "";
+    document.getElementById("inp-edad").value = "";
     document.getElementById("inp-contacto").value = "";
     cargarEstudiantes();
   }
@@ -128,6 +176,5 @@ async function eliminar(id) {
 
 cargarCursos();
 </script>
-
 </body>
 </html>
