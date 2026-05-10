@@ -1,7 +1,7 @@
 // =============================================
 //  Configuración de la API
 // =============================================
-const API = "https://enfermeria-production-7f39.up.railway.app/api";
+const API = "http://localhost:3000/api";
 
 // ── TOKEN ──
 function getToken() {

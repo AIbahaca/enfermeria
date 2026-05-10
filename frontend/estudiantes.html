@@ -54,6 +54,7 @@
       <div class="nav-section">
         <div class="nav-section-label">Gestión</div>
         <div class="nav-item active" onclick="location.href='estudiantes.html'"><span class="nav-icon">🎓</span> Estudiantes</div>
+        <div class="nav-item" onclick="location.href='cursos.html'"><span class="nav-icon">📚</span> Cursos</div>
         <div class="nav-item" onclick="location.href='alertas.html'"><span class="nav-icon">⚠️</span> Alertas</div>
         <div class="nav-item" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
       </div>
@@ -181,7 +182,7 @@ let datosImport = [];
 
 // ── CURSOS ──
 async function cargarCursos() {
-  const res = await fetch(API + "/cursos");
+  const res = await apiFetch("/cursos");
   const data = await res.json();
   const sel = document.getElementById("select-curso");
   data.forEach(c => { sel.innerHTML += `<option value="${c.id_curso}">${c.nombre} (${c.anio})</option>`; });
@@ -197,7 +198,7 @@ async function cargarEstudiantes() {
   document.getElementById("seccion-estudiantes").style.display = "block";
   document.getElementById("msg").textContent = "";
 
-  const res = await fetch(API + "/estudiantes?id_curso=" + id_curso);
+  const res = await apiFetch("/estudiantes?id_curso=" + id_curso);
   const data = await res.json();
   const tbody = document.getElementById("tabla-estudiantes");
   document.getElementById("count-est").textContent = data.length + " estudiantes";
@@ -225,7 +226,7 @@ async function agregarEstudiante() {
   const contacto = document.getElementById("inp-contacto").value.trim();
   if (!nombre) { msg.textContent = "❌ El nombre es obligatorio."; return; }
 
-  const res = await fetch(API + "/estudiantes", {
+  const res = await apiFetch("/estudiantes", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nombre, edad: edad ? parseInt(edad) : null, id_curso: cursoActivo, contacto_emergencia: contacto || null })
   });
@@ -241,7 +242,7 @@ async function agregarEstudiante() {
 
 async function eliminar(id) {
   if (!confirm("¿Eliminar estudiante?")) return;
-  await fetch(API + "/estudiantes/" + id, { method: "DELETE" });
+  await apiFetch("/estudiantes/" + id, { method: "DELETE" });
   cargarEstudiantes();
 }
 
@@ -316,7 +317,7 @@ async function importarEstudiantes() {
   for (const est of datosImport) {
     if (!est.nombre) { err++; continue; }
     try {
-      const res = await fetch(API + "/estudiantes", {
+      const res = await apiFetch("/estudiantes", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre: est.nombre, edad: est.edad, id_curso: cursoActivo, contacto_emergencia: est.contacto_emergencia || null })
       });

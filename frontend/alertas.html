@@ -84,7 +84,7 @@ function logout(){ localStorage.removeItem("user"); location.href="login.html"; 
 function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 
 async function cargarAlertas() {
-  const res = await fetch(API + "/alertas");
+  const res = await apiFetch("/alertas");
   const data = await res.json();
   const tbody = document.getElementById("tabla-alertas");
   document.getElementById("count-alertas").textContent = data.length + " alertas";
@@ -109,7 +109,7 @@ async function cargarAlertas() {
 
 async function eliminar(id) {
   if (!confirm("¿Descartar esta alerta?")) return;
-  await fetch(API + "/alertas/" + id, { method: "DELETE" });
+  await apiFetch("/alertas/" + id, { method: "DELETE" });
   cargarAlertas();
 }
 

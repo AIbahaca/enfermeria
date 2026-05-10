@@ -28,6 +28,7 @@
       <div class="nav-section">
         <div class="nav-section-label">Gestión</div>
         <div class="nav-item" onclick="location.href='estudiantes.html'"><span class="nav-icon">🎓</span> Estudiantes</div>
+        <div class="nav-item" onclick="location.href='cursos.html'"><span class="nav-icon">📚</span> Cursos</div>
         <div class="nav-item" onclick="location.href='alertas.html'"><span class="nav-icon">⚠️</span> Alertas</div>
         <div class="nav-item" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
       </div>
@@ -147,10 +148,10 @@ function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("o
 async function cargarStats() {
   try {
     const [est, ate, ale, med] = await Promise.all([
-      fetch(API + "/estudiantes").then(r=>r.json()),
-      fetch(API + "/atenciones").then(r=>r.json()),
-      fetch(API + "/alertas").then(r=>r.json()),
-      fetch(API + "/medicamentos").then(r=>r.json()),
+      apiFetch("/estudiantes").then(r=>r.json()),
+      apiFetch("/atenciones").then(r=>r.json()),
+      apiFetch("/alertas").then(r=>r.json()),
+      apiFetch("/medicamentos").then(r=>r.json()),
     ]);
     document.getElementById("stat-estudiantes").textContent = est.length;
     document.getElementById("stat-atenciones").textContent = ate.length;

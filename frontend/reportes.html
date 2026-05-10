@@ -27,6 +27,7 @@
       <div class="nav-section">
         <div class="nav-section-label">Gestión</div>
         <div class="nav-item" onclick="location.href='estudiantes.html'"><span class="nav-icon">🎓</span> Estudiantes</div>
+        <div class="nav-item" onclick="location.href='cursos.html'"><span class="nav-icon">📚</span> Cursos</div>
         <div class="nav-item" onclick="location.href='alertas.html'"><span class="nav-icon">⚠️</span> Alertas</div>
         <div class="nav-item" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
       </div>
@@ -82,7 +83,7 @@ function logout(){ localStorage.removeItem("user"); location.href="login.html"; 
 function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 
 async function cargarEstudiantes() {
-  const res = await fetch(API + "/reportes/estudiantes");
+  const res = await apiFetch("/reportes/estudiantes");
   const data = await res.json();
   const sel = document.getElementById("select-estudiante");
   if (data.length === 0) {
@@ -98,7 +99,7 @@ async function generarReporte() {
   const id = document.getElementById("select-estudiante").value;
   if (!id) { alert("Selecciona un estudiante."); return; }
 
-  const res = await fetch(API + "/reportes/estudiante/" + id);
+  const res = await apiFetch("/reportes/estudiante/" + id);
   const data = await res.json();
   const div = document.getElementById("reporte");
 

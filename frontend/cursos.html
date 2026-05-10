@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Medicamentos — Enfermería</title>
+  <title>Cursos — Enfermería</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="Style.css">
 </head>
@@ -27,9 +27,9 @@
       <div class="nav-section">
         <div class="nav-section-label">Gestión</div>
         <div class="nav-item" onclick="location.href='estudiantes.html'"><span class="nav-icon">🎓</span> Estudiantes</div>
-        <div class="nav-item" onclick="location.href='cursos.html'"><span class="nav-icon">📚</span> Cursos</div>
+        <div class="nav-item active" onclick="location.href='cursos.html'"><span class="nav-icon">📚</span> Cursos</div>
         <div class="nav-item" onclick="location.href='alertas.html'"><span class="nav-icon">⚠️</span> Alertas</div>
-        <div class="nav-item active" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
+        <div class="nav-item" onclick="location.href='medicamentos.html'"><span class="nav-icon">💊</span> Medicamentos</div>
       </div>
       <div class="nav-section">
         <div class="nav-section-label">Informes</div>
@@ -45,7 +45,7 @@
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:12px">
         <button class="hamburger" onclick="toggleSidebar()">☰</button>
-        <div class="topbar-title">Medicamentos</div>
+        <div class="topbar-title">Gestión de Cursos</div>
       </div>
       <div class="topbar-right">
         <div class="topbar-notif" onclick="location.href='alertas.html'">🔔</div>
@@ -55,36 +55,40 @@
     <div class="page-content">
       <div class="page-header-inner">
         <div>
-          <h2 class="page-title">Inventario de Medicamentos</h2>
-          <p class="page-subtitle">Gestión del stock de medicamentos disponibles</p>
+          <h2 class="page-title">Gestión de Cursos</h2>
+          <p class="page-subtitle">Agrega y administra los cursos disponibles</p>
         </div>
       </div>
 
       <div class="card">
         <div class="card-header-row">
-          <div class="card-title">Agregar Medicamento</div>
+          <div class="card-title">Agregar Nuevo Curso</div>
         </div>
         <div class="form-grid">
-          <div><label>Nombre *</label><input class="form-control" type="text" id="nombre" placeholder="Nombre del medicamento"></div>
-          <div><label>Uso</label><input class="form-control" type="text" id="uso" placeholder="Para qué se usa"></div>
-          <div><label>Tipo</label><input class="form-control" type="text" id="tipo" placeholder="Tipo de medicamento"></div>
-          <div><label>Stock</label><input class="form-control" type="number" id="stock" placeholder="Cantidad disponible" min="0"></div>
+          <div>
+            <label>Nombre del curso *</label>
+            <input class="form-control" type="text" id="inp-nombre" placeholder="Ej: 1ro de Bachillerato">
+          </div>
+          <div>
+            <label>Año</label>
+            <input class="form-control" type="number" id="inp-anio" placeholder="2025" value="2025">
+          </div>
         </div>
-        <button class="btn btn-primary" onclick="crear()">➕ Agregar medicamento</button>
+        <button class="btn btn-primary" onclick="crearCurso()">➕ Agregar curso</button>
         <p id="msg"></p>
       </div>
 
       <div class="card">
         <div class="card-header-row">
-          <div class="card-title">Inventario</div>
-          <span class="badge badge-teal" id="count-med">0 medicamentos</span>
+          <div class="card-title">Cursos Registrados</div>
+          <span class="badge badge-teal" id="count-cursos">0 cursos</span>
         </div>
         <div class="tabla-wrapper">
           <table>
             <thead>
-              <tr><th>#</th><th>Nombre</th><th>Uso</th><th>Tipo</th><th>Stock</th><th>Acción</th></tr>
+              <tr><th>#</th><th>Nombre</th><th>Año</th><th>Acción</th></tr>
             </thead>
-            <tbody id="tabla-medicamentos"></tbody>
+            <tbody id="tabla-cursos"></tbody>
           </table>
         </div>
       </div>
@@ -97,59 +101,56 @@
 function logout(){ localStorage.removeItem("user"); location.href="login.html"; }
 function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 
-async function cargar() {
-  const res = await apiFetch("/medicamentos");
+async function cargarCursos() {
+  const res = await apiFetch("/cursos");
+  if (!res) return;
   const data = await res.json();
-  const tbody = document.getElementById("tabla-medicamentos");
-  document.getElementById("count-med").textContent = data.length + " medicamentos";
+  const tbody = document.getElementById("tabla-cursos");
+  document.getElementById("count-cursos").textContent = data.length + " cursos";
+
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💊</div><p>Sin medicamentos registrados</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📚</div><p>Sin cursos registrados</p></div></td></tr>';
     return;
   }
   tbody.innerHTML = "";
-  data.forEach((m, i) => {
-    const bajo = m.stock !== null && m.stock < 5;
+  data.forEach((c, i) => {
     tbody.innerHTML += `<tr>
       <td>${i + 1}</td>
-      <td class="td-name">${m.nombre}</td>
-      <td>${m.uso || "—"}</td>
-      <td>${m.tipo ? `<span class="badge badge-teal">${m.tipo}</span>` : "—"}</td>
-      <td>${bajo ? `<span class="badge badge-red">⚠️ ${m.stock}</span>` : (m.stock ?? "—")}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="eliminar(${m.id_medicamento})">🗑️ Eliminar</button></td>
+      <td class="td-name">${c.nombre}</td>
+      <td>${c.anio || "—"}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="eliminarCurso(${c.id_curso})">🗑️ Eliminar</button></td>
     </tr>`;
   });
 }
 
-async function crear() {
-  const msg = document.getElementById("msg");
-  const nombre = document.getElementById("nombre").value.trim();
-  const uso = document.getElementById("uso").value.trim();
-  const tipo = document.getElementById("tipo").value.trim();
-  const stock = document.getElementById("stock").value;
+async function crearCurso() {
+  const msg    = document.getElementById("msg");
+  const nombre = document.getElementById("inp-nombre").value.trim();
+  const anio   = document.getElementById("inp-anio").value;
   if (!nombre) { msg.textContent = "❌ El nombre es obligatorio."; return; }
 
-  const res = await apiFetch("/medicamentos", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre, uso, tipo, stock: stock ? parseInt(stock) : null })
+  const res = await apiFetch("/cursos", {
+    method: "POST",
+    body: JSON.stringify({ nombre, anio: anio ? parseInt(anio) : null })
   });
+  if (!res) return;
   const data = await res.json();
   msg.textContent = res.ok ? "✅ " + data.mensaje : "❌ " + data.mensaje;
   if (res.ok) {
-    document.getElementById("nombre").value = "";
-    document.getElementById("uso").value = "";
-    document.getElementById("tipo").value = "";
-    document.getElementById("stock").value = "";
-    cargar();
+    document.getElementById("inp-nombre").value = "";
+    cargarCursos();
   }
 }
 
-async function eliminar(id) {
-  if (!confirm("¿Eliminar este medicamento?")) return;
-  await apiFetch("/medicamentos/" + id, { method: "DELETE" });
-  cargar();
+async function eliminarCurso(id) {
+  if (!confirm("¿Eliminar este curso? Los estudiantes asignados quedarán sin curso.")) return;
+  const res = await apiFetch("/cursos/" + id, { method: "DELETE" });
+  if (!res) return;
+  cargarCursos();
 }
 
-cargar();
+requireLogin();
+cargarCursos();
 </script>
 </body>
 </html>
